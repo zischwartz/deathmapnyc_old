@@ -42,10 +42,8 @@ GeneralIcon = L.Icon.extend
 	    shadowUrl: 'skull_shadow.png',
 	    iconSize:     [80, 106],
 	    shadowSize:   [143, 112],
-	    iconAnchor:   [0, 0], # point of the icon which will correspond to marker's location
-	    # iconAnchor:   [22, 94], # point of the icon which will correspond to marker's location
-	    # shadowAnchor: [4, 62],  # the same for the shadow
-	    shadowAnchor: [-30, 5],  # the same for the shadow
+	    iconAnchor:   [40, 106], # point of the icon which will correspond to marker's location
+	    shadowAnchor: [10, 112],  # the same for the shadow
 	    popupAnchor:  [-3, -76]
 
 skullIcon = new GeneralIcon({iconUrl: 'skull_small.png'})
@@ -54,11 +52,9 @@ skullIcon = new GeneralIcon({iconUrl: 'skull_small.png'})
 
 reqListener =()->
 	data = JSON.parse this.responseText
-	# console.log data
 	for x, i in data
-		# console.log i
-		L.marker([x.lat, x.long], {icon: skullIcon}).addTo(map);
-		# console.log x,i
+		L.marker([x.lat, x.long], {icon: skullIcon, clickable: false, opacity: 0.8}).addTo(map);
+
 
 
 url = "motor_related_deaths.json"
@@ -76,6 +72,7 @@ oReq.send()
 # });
 
 
+# setIcon
 
 
 

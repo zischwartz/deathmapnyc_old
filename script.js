@@ -33,8 +33,8 @@ GeneralIcon = L.Icon.extend({
     shadowUrl: 'skull_shadow.png',
     iconSize: [80, 106],
     shadowSize: [143, 112],
-    iconAnchor: [0, 0],
-    shadowAnchor: [-30, 5],
+    iconAnchor: [40, 106],
+    shadowAnchor: [10, 112],
     popupAnchor: [-3, -76]
   }
 });
@@ -50,7 +50,9 @@ reqListener = function() {
   for (i = j = 0, len = data.length; j < len; i = ++j) {
     x = data[i];
     results.push(L.marker([x.lat, x.long], {
-      icon: skullIcon
+      icon: skullIcon,
+      clickable: false,
+      opacity: 0.8
     }).addTo(map));
   }
   return results;
