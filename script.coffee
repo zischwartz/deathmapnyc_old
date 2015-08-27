@@ -28,32 +28,36 @@ greenIcon = L.icon
   iconSize:     [38, 95], # size of the icon
   shadowSize:   [50, 64], # size of the shadow
   iconAnchor:   [22, 94], # point of the icon which will correspond to marker's location
+  # iconAnchor:   [22, 94], # point of the icon which will correspond to marker's location
   shadowAnchor: [4, 62],  # the same for the shadow
   popupAnchor:  [-3, -76] # point from which the popup should open relative to the iconAnchor
 
 L.marker(start, {icon: greenIcon}).addTo(map);
 
-# sublclass
+# todo, generalize size, have it adjust on zoom
+# also ask for location
 
-# LeafIcon = L.Icon.extend
-# 	options: 
-# 	    shadowUrl: 'leaf-shadow.png',
-# 	    iconSize:     [38, 95],
-# 	    shadowSize:   [50, 64],
-# 	    iconAnchor:   [22, 94],
-# 	    shadowAnchor: [4, 62],
-# 	    popupAnchor:  [-3, -76]
+GeneralIcon = L.Icon.extend
+	options: 
+	    shadowUrl: 'skull_shadow.png',
+	    iconSize:     [80, 106],
+	    shadowSize:   [143, 112],
+	    iconAnchor:   [0, 0], # point of the icon which will correspond to marker's location
+	    # iconAnchor:   [22, 94], # point of the icon which will correspond to marker's location
+	    # shadowAnchor: [4, 62],  # the same for the shadow
+	    shadowAnchor: [-30, 5],  # the same for the shadow
+	    popupAnchor:  [-3, -76]
 
-# greenIcon = new LeafIcon({iconUrl: 'leaf-green.png'}),
-    # redIcon = new LeafIcon({iconUrl: 'leaf-red.png'}),
-    # orangeIcon = new LeafIcon({iconUrl: 'leaf-orange.png'})
+skullIcon = new GeneralIcon({iconUrl: 'skull_small.png'})
+    # redIcon = new GeneralIcon({iconUrl: 'leaf-red.png'}),
+    # orangeIcon = new GeneralIcon({iconUrl: 'leaf-orange.png'})
 
 reqListener =()->
 	data = JSON.parse this.responseText
 	# console.log data
 	for x, i in data
 		# console.log i
-		L.marker([x.lat, x.long], {icon: greenIcon}).addTo(map);
+		L.marker([x.lat, x.long], {icon: skullIcon}).addTo(map);
 		# console.log x,i
 
 
@@ -63,3 +67,16 @@ oReq = new XMLHttpRequest()
 oReq.addEventListener('load', reqListener)
 oReq.open("get", url, true)
 oReq.send()
+
+# var myMarker = new L.CircleMarker([10,10], { /* Options */ });
+
+# map.on('zoomend', function() {
+#   var currentZoom = map.getZoom();
+#   myMarker.setRadius(currentZoom);
+# });
+
+
+
+
+
+
