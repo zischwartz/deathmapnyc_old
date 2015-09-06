@@ -1,15 +1,10 @@
-# map = L.map('map').setView([51.505, -0.09], 13)`
 
-# # L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-# #     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-# #     maxZoom: 18,
-# #     id: 'your.mapbox.project.id',
-# #     accessToken: 'your.mapbox.public.access.token'
-# # }).addTo(map);
 
-# map.addLayer new L.StamenTileLayer "toner", 
-#                         detectRetina: true
- 
+# TODO
+
+# [ ] Write generalized loader for markers
+# [ ] Try L.transform for zoom http://jsfiddle.net/paulovieira/vNLaP/
+
 
 start = [40.6294862,-74.022639]
 
@@ -25,38 +20,35 @@ map.on 'zoomend', ->
   currentZoom = map.getZoom()
   console.log currentZoom
   # smaller numbers are zoomed further out
-  if currentZoom <= 12
-    for marker in markers
-      marker.setIcon tiny_skull
+  
+  # TODO
+  # one for zoom of 11
 
-  if currentZoom > 12
-    for marker in markers
-      marker.setIcon small_skull
+  #codify this, spend 15m making a tool for different states
 
-  # myMarker.setRadius(currentZoom)
-  # marker.setIcon(icon)
+  # if currentZoom <= 12
+  #   for marker in markers
+  #     marker.setIcon tiny_skull
+  #     marker.setOpacity 0.5
 
-# greenIcon = L.icon
-#   iconUrl: 'leaf-orange.png'
-#   shadowUrl: 'leaf-shadow.png'
-#   iconSize:     [38, 95], # size of the icon
-#   shadowSize:   [50, 64], # size of the shadow
-#   iconAnchor:   [22, 94], # point of the icon which will correspond to marker's location
-#   # iconAnchor:   [22, 94], # point of the icon which will correspond to marker's location
-#   shadowAnchor: [4, 62],  # the same for the shadow
-#   popupAnchor:  [-3, -76] # point from which the popup should open relative to the iconAnchor
+  # if currentZoom > 12
+  #   console.log 'change'
+  #   for marker in markers
+  #     marker.setIcon small_skull
+  #     marker.setOpacity 0.7
 
-# L.marker(start, {icon: greenIcon}).addTo(map);
+
 
 # todo, generalize size, have it adjust on zoom
 # also ask for location
 
-# no try it this way, maybe use two different actual sizes to keep it relatively performant
+# OR try it this way, maybe use two different actual sizes to keep it relatively performant
 # http://jsfiddle.net/paulovieira/vNLaP/
+# https://groups.google.com/forum/#!topic/leaflet-js/9ouCSvTIU3c
 
 small_skull = L.icon
   iconUrl: 'small_skull.png',
-  shadowUrl: 'small_skull_shadow.png',
+  shadowUrl: 'small_skull_shadow_lighter.png',
   iconSize:     [80, 106],
   shadowSize:   [143, 112],
   iconAnchor:   [40, 106], # point of the icon which will correspond to marker's location
@@ -66,7 +58,7 @@ small_skull = L.icon
 
 tiny_skull = L.icon
   iconUrl: 'small_skull.png',
-  shadowUrl: 'small_skull_shadow.png',
+  # shadowUrl: 'small_skull_shadow.png',
   iconSize:     [40, 53],
   shadowSize:   [121, 56],
   iconAnchor:   [20, 53], # point of the icon which will correspond to marker's location
@@ -77,12 +69,23 @@ tiny_skull = L.icon
     # redIcon = new GeneralIcon({iconUrl: 'leaf-red.png'}),
     # orangeIcon = new GeneralIcon({iconUrl: 'leaf-orange.png'})
 
+
+glock_skull = L.icon
+  iconUrl: 'glock_skull.png',
+  # shadowUrl: 'small_skull_shadow_lighter.png',
+  iconSize:     [149 , 208],
+  # shadowSize:   [143, 112],
+  iconAnchor:   [40, 106], # point of the icon which will correspond to marker's location
+  shadowAnchor: [10, 112],  # the same for the shadow
+  popupAnchor:  [-3, -76]
+
 markers = []
 
 reqListener =()->
   data = JSON.parse this.responseText
   for x, i in data
-    markers.push L.marker([x.lat, x.long], {icon: small_skull, clickable: false, opacity: 0.8}).addTo(map);
+    # make the markers, add them to map
+    markers.push L.marker([x.lat, x.long], {icon: small_skull, clickable: false, opacity: 0.7}).addTo(map);
 
 
 url = "motor_related_deaths.json"
@@ -91,6 +94,24 @@ oReq = new XMLHttpRequest()
 oReq.addEventListener('load', reqListener)
 oReq.open("get", url, true)
 oReq.send()
+
+# SAME AS ABOVE
+# but with glock_skull, and longitude, lat
+
+reqListener =()->
+  data = JSON.parse this.responseText
+  for x, i in data
+    # make the markers, add them to map
+    markers.push L.marker([x.latitude, x.longitude], {icon: glock_skull, clickable: false, opacity: 0.7}).addTo(map);
+
+
+url = "murders.json"
+
+oReq = new XMLHttpRequest()
+oReq.addEventListener('load', reqListener)
+oReq.open("get", url, true)
+oReq.send()
+
 
 # var myMarker = new L.CircleMarker([10,10], { /* Options */ });
 
