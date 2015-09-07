@@ -52,14 +52,39 @@ death_icons = new IconFactory({
       var n;
       n = Math.floor(seed * 6);
       if (n <= 2) {
-        return [140, 80 * seed + 60];
+        return [140, 100 * seed + 60];
       } else {
-        return [-40, 80 * seed + 60];
+        return [-40, 100 * seed + 60];
       }
     },
     shadowUrl: function(seed) {
       var options;
       options = ["img/medium/glock.png", "img/medium/glock_rot1.png", "img/medium/glock_rot2.png", "img/medium/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png"];
+      return options[Math.floor(seed * options.length)];
+    }
+  },
+  small_skull: {
+    iconSize: [80 / 2, 106 / 2],
+    iconAnchor: [40 / 2, 106 / 2],
+    iconUrl: 'img/medium/skull.png'
+  },
+  small_glock_skull: {
+    iconSize: [80 / 2, 106 / 2],
+    iconAnchor: [40 / 2, 106 / 2],
+    iconUrl: 'img/medium/skull.png',
+    shadowSize: [108 / 2, 84 / 2],
+    shadowAnchor: function(seed) {
+      var n;
+      n = Math.floor(seed * 6);
+      if (n <= 2) {
+        return [140 / 2, 100 / 2 * seed + 60 / 2];
+      } else {
+        return [-40 / 2, 100 / 2 * seed + 60 / 2];
+      }
+    },
+    shadowUrl: function(seed) {
+      var options;
+      options = ["img/small/glock.png", "img/small/glock_rot1.png", "img/small/glock_rot2.png", "img/small/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png"];
       return options[Math.floor(seed * options.length)];
     }
   }
@@ -86,7 +111,7 @@ map.on('zoomend', function() {
 
 markers = [];
 
-marker_opacity = 0.5;
+marker_opacity = 1;
 
 reqListener = function() {
   var data, i, j, len, results, x;
@@ -95,7 +120,7 @@ reqListener = function() {
   for (i = j = 0, len = data.length; j < len; i = ++j) {
     x = data[i];
     results.push(markers.push(L.marker([x.lat, x.long], {
-      icon: death_icons.make("medium_skull"),
+      icon: death_icons.make("small_skull"),
       clickable: false,
       opacity: marker_opacity
     }).addTo(map)));
@@ -120,7 +145,7 @@ reqListener = function() {
   for (i = j = 0, len = data.length; j < len; i = ++j) {
     x = data[i];
     results.push(markers.push(L.marker([x.latitude, x.longitude], {
-      icon: death_icons.make("medium_glock_skull"),
+      icon: death_icons.make("small_glock_skull"),
       riseOnHover: true,
       clickable: false,
       opacity: marker_opacity
