@@ -66,14 +66,41 @@ death_icons = new IconFactory
       options = ["img/small/glock.png", "img/small/glock_rot1.png", "img/small/glock_rot2.png", "img/small/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png",]
       options[ Math.floor(seed * options.length) ]
 
+
+  small_skull_jitter:
+    iconSize: (s)->[80/2, 106/2]
+    iconAnchor: (s)->  [Math.random()*20+40/2, Math.random()*20+106/2]
+    iconUrl: 'img/medium/skull.png'
+  small_glock_skull_jitter:
+    iconSize: (s)->[80/2, 106/2]
+    iconAnchor:  (s)-> [Math.random()*20+40/2, Math.random()*20+106/2]
+    iconUrl: 'img/medium/skull.png'
+    shadowSize:[108/2, 84/2]
+    shadowAnchor: (seed)->
+      n = Math.floor(seed * 6) # options.length below is 6
+      if n <= 2
+        [140/2, 100/2*Math.random()+60/2]
+      else 
+        [-10, 100/2*Math.random()+60/2]
+    shadowUrl: (seed)->
+      options = ["img/small/glock.png", "img/small/glock_rot1.png", "img/small/glock_rot2.png", "img/small/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png",]
+      options[ Math.floor(seed * options.length) ]
+
+
 start = [40.6294862,-74.022639]
 
-layer = new L.StamenTileLayer "toner-lite", 
+toner_layer = new L.StamenTileLayer "toner-lite", 
   attribution: """Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>."""
+
+# watercolor_layer = new L.StamenTileLayer "watercolor", 
+#   attribution: """Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>."""
+
+
 map = new L.Map "map", 
   center: new L.LatLng(start[0], start[1])
   zoom: 13
-map.addLayer(layer)
+  layers: [toner_layer] #watercolor_layer
+# map.addLayer(layer)
 
 
 map.on 'zoomend', ->
@@ -109,14 +136,14 @@ map.on 'zoomend', ->
 
 markers = []
 
-marker_opacity = 1
+marker_opacity = 0.4
 
 
 reqListener =()->
   data = JSON.parse this.responseText
   for x, i in data
     # make the markers, add them to map
-    markers.push L.marker([x.lat, x.long], {icon: death_icons.make("small_skull"), clickable: false, opacity: marker_opacity}).addTo(map)
+    markers.push L.marker([x.lat, x.long], {icon: death_icons.make("small_skull_jitter"), clickable: false, opacity: marker_opacity}).addTo(map)
 
 
 url = "motor_related_deaths.json"
@@ -134,7 +161,7 @@ reqListener =()->
   for x, i in data
     # make the markers, add them to map
     # markers.push L.marker([x.latitude, x.longitude], {icon: glock_skull, clickable: false, opacity: 0.7}).addTo(map);
-    markers.push L.marker([x.latitude, x.longitude], {icon: death_icons.make("small_glock_skull"), riseOnHover:true, clickable: false, opacity: marker_opacity}).addTo(map)
+    markers.push L.marker([x.latitude, x.longitude], {icon: death_icons.make("small_glock_skull_jitter"), riseOnHover:true, clickable: false, opacity: marker_opacity}).addTo(map)
 
 
 url = "murders.json"
