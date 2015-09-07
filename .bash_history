@@ -56,3 +56,10 @@ find  -type f . '71.csv'
 find .  -type f'71.csv'
 find .  -type f '*71.csv'
 grep -irl ".csv" *
+cd /root
+find . '71.csv'
+iypthon
+ipython
+find dada.pink/nyc-crime-map-data/ -iname "*.csv"
+ipython
+ipython
