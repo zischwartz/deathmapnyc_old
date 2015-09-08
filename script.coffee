@@ -102,6 +102,7 @@ map = new L.Map "map",
   layers: [toner_layer] #watercolor_layer
 # map.addLayer(layer)
 
+toner_layer.setOpacity(0.5)
 
 map.on 'zoomend', ->
   currentZoom = map.getZoom()

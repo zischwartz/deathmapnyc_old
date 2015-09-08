@@ -135,6 +135,8 @@ map = new L.Map("map", {
   layers: [toner_layer]
 });
 
+toner_layer.setOpacity(0.5);
+
 map.on('zoomend', function() {
   var currentZoom;
   currentZoom = map.getZoom();
