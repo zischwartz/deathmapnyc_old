@@ -87,6 +87,27 @@ death_icons = new IconFactory
       options[ Math.floor(seed * options.length) ]
 
 
+  tiny_skull_jitter:
+    iconSize: (s)->[80/4, 106/4]
+    iconAnchor: (s)->  [Math.random()*20+40/4, Math.random()*20+106/4]
+    iconUrl: 'img/medium/skull.png'
+  tiny_glock_skull_jitter:
+    iconSize: (s)->[80/4, 106/4]
+    iconAnchor:  (s)-> [Math.random()*20+40/4, Math.random()*20+106/4]
+    iconUrl: 'img/medium/skull.png'
+    shadowSize:[108/4, 84/4]
+    shadowAnchor: (seed)->
+      n = Math.floor(seed * 6) # options.length below is 6
+      if n <= 2
+        [200/4, 100/4*Math.random()+80/4]
+      else 
+        # glocks on the right, that point left
+        [-5, 100/4*Math.random()+80/4]
+    shadowUrl: (seed)->
+      options = ["img/tiny/glock.png", "img/tiny/glock_rot1.png", "img/tiny/glock_rot2.png", "img/tiny/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png",]
+      options[ Math.floor(seed * options.length) ]
+
+
 start = [40.6294862,-74.022639]
 
 toner_layer = new L.StamenTileLayer "toner-lite", 
@@ -137,14 +158,15 @@ map.on 'zoomend', ->
 
 markers = []
 
-marker_opacity = 0.4
+# marker_opacity = 0.4
+marker_opacity = 1
 
 
 reqListener =()->
   data = JSON.parse this.responseText
   for x, i in data
     # make the markers, add them to map
-    markers.push L.marker([x.lat, x.long], {icon: death_icons.make("small_skull_jitter"), clickable: false, opacity: marker_opacity}).addTo(map)
+    markers.push L.marker([x.lat, x.long], {icon: death_icons.make("tiny_skull_jitter"), clickable: false, opacity: marker_opacity}).addTo(map)
 
 
 url = "motor_related_deaths.json"
@@ -162,7 +184,7 @@ reqListener =()->
   for x, i in data
     # make the markers, add them to map
     # markers.push L.marker([x.latitude, x.longitude], {icon: glock_skull, clickable: false, opacity: 0.7}).addTo(map);
-    markers.push L.marker([x.latitude, x.longitude], {icon: death_icons.make("small_glock_skull_jitter"), riseOnHover:true, clickable: false, opacity: marker_opacity}).addTo(map)
+    markers.push L.marker([x.latitude, x.longitude], {icon: death_icons.make("tiny_glock_skull_jitter"), riseOnHover:true, clickable: false, opacity: marker_opacity}).addTo(map)
 
 
 url = "murders.json"
