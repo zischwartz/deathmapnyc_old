@@ -1,11 +1,22 @@
 
 
-goto_me= ->
+get_location = ->
   if "geolocation" of navigator
     navigator.geolocation.getCurrentPosition (position)->
       console.log position
-      map.setView([position.coords.latitude, position.coords.longitude])
+      gotLocation([position.coords.latitude, position.coords.longitude])
+      # map.setView([position.coords.latitude, position.coords.longitude])
   else alert("Geolocation not supported by your browser")
+
+gotLocation = (pos) ->
+  ll = L.latLng(pos[0], pos[1])
+  start_ll = new L.LatLng(start[0], start[1])
+  meters = ll.distanceTo(start)
+
+  if meters < 30000
+    map.setView pos, 14
+  console.log meters
+
 
 class IconFactory 
   constructor: (@types)->
@@ -47,6 +58,7 @@ death_icons = new IconFactory
       options = ["img/medium/glock.png", "img/medium/glock_rot1.png", "img/medium/glock_rot2.png", "img/medium/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png",]
       options[ Math.floor(seed * options.length) ]
 
+
   small_skull:
     iconSize: [80/2, 106/2]
     iconAnchor:   [40/2, 106/2]
@@ -67,14 +79,34 @@ death_icons = new IconFactory
       options[ Math.floor(seed * options.length) ]
 
 
+  medium_skull_jitter:
+    iconSize: (s)->[80, 106]
+    iconAnchor: (s)->  [Math.random()*40+40, Math.random()*40+106]
+    iconUrl: 'img/medium/skull.png'
+  medium_glock_skull_jitter:
+    iconSize: (s)->[80, 106]
+    iconAnchor:  (s)-> [Math.random()*40+40, Math.random()*40+106]
+    iconUrl: 'img/medium/skull.png'
+    shadowSize:[108, 84]
+    shadowAnchor: (seed)->
+      n = Math.floor(seed * 6) # options.length below is 6
+      if n <= 2
+        [140, 100*Math.random()+60]
+      else 
+        [-10, 100*Math.random()+60]
+    shadowUrl: (seed)->
+      options = ["img/medium/glock.png", "img/medium/glock_rot1.png", "img/medium/glock_rot2.png", "img/medium/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png",]
+      options[ Math.floor(seed * options.length) ]
+
+
   small_skull_jitter:
     iconSize: (s)->[80/2, 106/2]
     iconAnchor: (s)->  [Math.random()*20+40/2, Math.random()*20+106/2]
-    iconUrl: 'img/medium/skull.png'
+    iconUrl: 'img/small/skull.png'
   small_glock_skull_jitter:
     iconSize: (s)->[80/2, 106/2]
     iconAnchor:  (s)-> [Math.random()*20+40/2, Math.random()*20+106/2]
-    iconUrl: 'img/medium/skull.png'
+    iconUrl: 'img/small/skull.png'
     shadowSize:[108/2, 84/2]
     shadowAnchor: (seed)->
       n = Math.floor(seed * 6) # options.length below is 6
@@ -108,66 +140,79 @@ death_icons = new IconFactory
       options[ Math.floor(seed * options.length) ]
 
 
-start = [40.6294862,-74.022639]
+start = [40.72677093147629, -73.9226245880127]
 
 toner_layer = new L.StamenTileLayer "toner-lite", 
   attribution: """Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>."""
-
-# watercolor_layer = new L.StamenTileLayer "watercolor", 
-#   attribution: """Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>."""
-
-
-map = new L.Map "map", 
-  center: new L.LatLng(start[0], start[1])
-  zoom: 13
-  layers: [toner_layer] #watercolor_layer
-# map.addLayer(layer)
-
-toner_layer.setOpacity(0.5)
-
-map.on 'zoomend', ->
-  currentZoom = map.getZoom()
-  console.log currentZoom
-  # smaller numbers are zoomed further out
-  
-  # TODO
-  # one for zoom of 11
-
-  #codify this, spend 15m making a tool for different states
-
-  # if currentZoom <= 12
-  #   for marker in markers
-  #     marker.setIcon tiny_skull
-  #     marker.setOpacity 0.5
-
-  # if currentZoom > 12
-  #   console.log 'change'
-  #   for marker in markers
-  #     marker.setIcon small_skull
-  #     marker.setOpacity 0.7
-
-
-
-# todo, generalize size, have it adjust on zoom
-# also ask for location
-
-# OR try it this way, maybe use two different actual sizes to keep it relatively performant
-# http://jsfiddle.net/paulovieira/vNLaP/
-# https://groups.google.com/forum/#!topic/leaflet-js/9ouCSvTIU3c
-
 
 markers = []
 
 # marker_opacity = 0.4
 marker_opacity = 1
 
+last_zoom = 13
+
+
+map = new L.Map "map", 
+  center: new L.LatLng(start[0], start[1])
+  zoom: last_zoom
+  layers: [toner_layer] #watercolor_layer
+# map.addLayer(layer)
+
+toner_layer.setOpacity(0.5)
+
+map.on 'zoomend', ->
+  current_zoom = map.getZoom()
+  console.log current_zoom, last_zoom
+  # smaller numbers are zoomed further out
+  
+  # TODO
+  # tiny at 13
+  # at 14 use small
+
+  #codify this, spend 15m making a tool for different states
+
+  # default
+  # if current_zoom <= 13 and last_zoom in [13, 14]
+  if current_zoom is 13 and last_zoom is 14
+    for mark in markers
+      if mark["homicide"]
+        mark.setIcon death_icons.make("tiny_glock_skull_jitter")
+      else
+        mark.setIcon death_icons.make("tiny_skull_jitter")
+  #     marker.setOpacity 0.5
+
+  # zoomed in view, automatic if got_location is in nyc
+  # if current_zoom > 13 and last_zoom in [13, 14]
+  if current_zoom is 14 and last_zoom is 13 or current_zoom is 14 and last_zoom is 15
+    for mark in markers
+      if mark["homicide"]
+        mark.setIcon death_icons.make("small_glock_skull_jitter")
+      else
+        mark.setIcon death_icons.make("small_skull_jitter")
+
+  if current_zoom is 15 and last_zoom is 14
+    for mark in markers
+      if mark["homicide"]
+        mark.setIcon death_icons.make("medium_glock_skull_jitter")
+      else
+        mark.setIcon death_icons.make("medium_skull_jitter")
+
+
+  last_zoom = current_zoom
+# OR try it this way, maybe use two different actual sizes to keep it relatively performant
+# http://jsfiddle.net/paulovieira/vNLaP/
+# https://groups.google.com/forum/#!topic/leaflet-js/9ouCSvTIU3c
+
+
 
 reqListener =()->
   data = JSON.parse this.responseText
   for x, i in data
     # make the markers, add them to map
-    markers.push L.marker([x.lat, x.long], {icon: death_icons.make("tiny_skull_jitter"), clickable: false, opacity: marker_opacity}).addTo(map)
-
+    mark = L.marker([x.lat, x.long], {icon: death_icons.make("tiny_skull_jitter"), clickable: false, opacity: marker_opacity, title: "hello"})
+    mark.addTo(map)
+    markers.push mark
 
 url = "motor_related_deaths.json"
 
@@ -178,14 +223,19 @@ oReq.send()
 
 # # SAME AS ABOVE
 # # but with glock_skull, and longitude, lat
+months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+
 
 reqListener =()->
   data = JSON.parse this.responseText
   for x, i in data
+    title = months[ x["MO"] ]+ ' '+ x["YR"]
     # make the markers, add them to map
     # markers.push L.marker([x.latitude, x.longitude], {icon: glock_skull, clickable: false, opacity: 0.7}).addTo(map);
-    markers.push L.marker([x.latitude, x.longitude], {icon: death_icons.make("tiny_glock_skull_jitter"), riseOnHover:true, clickable: false, opacity: marker_opacity}).addTo(map)
-
+    mark = L.marker([x.latitude, x.longitude], {icon: death_icons.make("tiny_glock_skull_jitter"), riseOnHover:true, clickable: false, opacity: marker_opacity, title: title})
+    mark.addTo(map)
+    mark["homicide"] = true
+    markers.push mark
 
 url = "murders.json"
 
@@ -203,8 +253,7 @@ oReq.send()
 # });
 
 
-# setIcon
 
 
-
-
+# watercolor_layer = new L.StamenTileLayer "watercolor", 
+#   attribution: """Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>."""
