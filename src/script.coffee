@@ -122,11 +122,11 @@ death_icons = new IconFactory
   tiny_skull_jitter:
     iconSize: (s)->[80/4, 106/4]
     iconAnchor: (s)->  [Math.random()*20+40/4, Math.random()*20+106/4]
-    iconUrl: 'img/medium/skull.png'
+    iconUrl: 'img/tiny/skull.png'
   tiny_glock_skull_jitter:
     iconSize: (s)->[80/4, 106/4]
     iconAnchor:  (s)-> [Math.random()*20+40/4, Math.random()*20+106/4]
-    iconUrl: 'img/medium/skull.png'
+    iconUrl: 'img/tiny/skull.png'
     shadowSize:[108/4, 84/4]
     shadowAnchor: (seed)->
       n = Math.floor(seed * 6) # options.length below is 6
@@ -136,9 +136,28 @@ death_icons = new IconFactory
         # glocks on the right, that point left
         [-5, 100/4*Math.random()+80/4]
     shadowUrl: (seed)->
-      options = ["img/tiny/glock.png", "img/tiny/glock_rot1.png", "img/tiny/glock_rot2.png", "img/tiny/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png",]
+      options = ["img/tiny/glock.png", "img/tiny/glock_rot1.png", "img/tiny/glock_rot2.png", "img/tiny/glock_reverse.png", "img/tiny/glock_rot1_reverse.png", "img/tiny/glock_rot2_reverse.png",]
       options[ Math.floor(seed * options.length) ]
 
+  ity_skull_jitter:
+    iconSize: (s)->[80/8, 106/8]
+    iconAnchor: (s)->  [Math.random()*20+40/8, Math.random()*20+106/8]
+    iconUrl: 'img/ity/skull.png'
+  ity_glock_skull_jitter:
+    iconSize: (s)->[80/8, 106/8]
+    iconAnchor:  (s)-> [Math.random()*20+40/8, Math.random()*20+106/8]
+    iconUrl: 'img/ity/skull.png'
+    shadowSize:[108/8, 84/8]
+    shadowAnchor: (seed)->
+      n = Math.floor(seed * 6) # options.length below is 6
+      if n <= 2
+        [34, 100/8*Math.random()+80/8]
+      else 
+        # glocks on the right, that point left
+        [-5, 100/8*Math.random()+80/8]
+    shadowUrl: (seed)->
+      options = ["img/ity/glock.png", "img/ity/glock_rot1.png", "img/ity/glock_rot2.png", "img/ity/glock_reverse.png", "img/ity/glock_rot1_reverse.png", "img/ity/glock_rot2_reverse.png",]
+      options[ Math.floor(seed * options.length) ]
 
 start = [40.72677093147629, -73.9226245880127]
 
@@ -170,11 +189,18 @@ map.on 'zoomend', ->
   # tiny at 13
   # at 14 use small
 
-  #codify this, spend 15m making a tool for different states
+
+  if current_zoom is 12 and last_zoom is 13
+    for mark in markers
+      if mark["homicide"]
+        mark.setIcon death_icons.make("ity_glock_skull_jitter")
+      else
+        mark.setIcon death_icons.make("ity_skull_jitter")
 
   # default
   # if current_zoom <= 13 and last_zoom in [13, 14]
-  if current_zoom is 13 and last_zoom is 14
+  if current_zoom is 13 and last_zoom is 14 or current_zoom is 13 and last_zoom is 12
+    console.log 'def'
     for mark in markers
       if mark["homicide"]
         mark.setIcon death_icons.make("tiny_glock_skull_jitter")

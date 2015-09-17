@@ -171,7 +171,7 @@ death_icons = new IconFactory({
     iconAnchor: function(s) {
       return [Math.random() * 20 + 40 / 4, Math.random() * 20 + 106 / 4];
     },
-    iconUrl: 'img/medium/skull.png'
+    iconUrl: 'img/tiny/skull.png'
   },
   tiny_glock_skull_jitter: {
     iconSize: function(s) {
@@ -180,7 +180,7 @@ death_icons = new IconFactory({
     iconAnchor: function(s) {
       return [Math.random() * 20 + 40 / 4, Math.random() * 20 + 106 / 4];
     },
-    iconUrl: 'img/medium/skull.png',
+    iconUrl: 'img/tiny/skull.png',
     shadowSize: [108 / 4, 84 / 4],
     shadowAnchor: function(seed) {
       var n;
@@ -193,7 +193,40 @@ death_icons = new IconFactory({
     },
     shadowUrl: function(seed) {
       var options;
-      options = ["img/tiny/glock.png", "img/tiny/glock_rot1.png", "img/tiny/glock_rot2.png", "img/tiny/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png"];
+      options = ["img/tiny/glock.png", "img/tiny/glock_rot1.png", "img/tiny/glock_rot2.png", "img/tiny/glock_reverse.png", "img/tiny/glock_rot1_reverse.png", "img/tiny/glock_rot2_reverse.png"];
+      return options[Math.floor(seed * options.length)];
+    }
+  },
+  ity_skull_jitter: {
+    iconSize: function(s) {
+      return [80 / 8, 106 / 8];
+    },
+    iconAnchor: function(s) {
+      return [Math.random() * 20 + 40 / 8, Math.random() * 20 + 106 / 8];
+    },
+    iconUrl: 'img/ity/skull.png'
+  },
+  ity_glock_skull_jitter: {
+    iconSize: function(s) {
+      return [80 / 8, 106 / 8];
+    },
+    iconAnchor: function(s) {
+      return [Math.random() * 20 + 40 / 8, Math.random() * 20 + 106 / 8];
+    },
+    iconUrl: 'img/ity/skull.png',
+    shadowSize: [108 / 8, 84 / 8],
+    shadowAnchor: function(seed) {
+      var n;
+      n = Math.floor(seed * 6);
+      if (n <= 2) {
+        return [34, 100 / 8 * Math.random() + 80 / 8];
+      } else {
+        return [-5, 100 / 8 * Math.random() + 80 / 8];
+      }
+    },
+    shadowUrl: function(seed) {
+      var options;
+      options = ["img/ity/glock.png", "img/ity/glock_rot1.png", "img/ity/glock_rot2.png", "img/ity/glock_reverse.png", "img/ity/glock_rot1_reverse.png", "img/ity/glock_rot2_reverse.png"];
       return options[Math.floor(seed * options.length)];
     }
   }
@@ -220,12 +253,23 @@ map = new L.Map("map", {
 toner_layer.setOpacity(0.5);
 
 map.on('zoomend', function() {
-  var current_zoom, mark, _i, _j, _k, _len, _len1, _len2;
+  var current_zoom, mark, _i, _j, _k, _l, _len, _len1, _len2, _len3;
   current_zoom = map.getZoom();
   console.log(current_zoom, last_zoom);
-  if (current_zoom === 13 && last_zoom === 14) {
+  if (current_zoom === 12 && last_zoom === 13) {
     for (_i = 0, _len = markers.length; _i < _len; _i++) {
       mark = markers[_i];
+      if (mark["homicide"]) {
+        mark.setIcon(death_icons.make("ity_glock_skull_jitter"));
+      } else {
+        mark.setIcon(death_icons.make("ity_skull_jitter"));
+      }
+    }
+  }
+  if (current_zoom === 13 && last_zoom === 14 || current_zoom === 13 && last_zoom === 12) {
+    console.log('def');
+    for (_j = 0, _len1 = markers.length; _j < _len1; _j++) {
+      mark = markers[_j];
       if (mark["homicide"]) {
         mark.setIcon(death_icons.make("tiny_glock_skull_jitter"));
       } else {
@@ -234,8 +278,8 @@ map.on('zoomend', function() {
     }
   }
   if (current_zoom === 14 && last_zoom === 13 || current_zoom === 14 && last_zoom === 15) {
-    for (_j = 0, _len1 = markers.length; _j < _len1; _j++) {
-      mark = markers[_j];
+    for (_k = 0, _len2 = markers.length; _k < _len2; _k++) {
+      mark = markers[_k];
       if (mark["homicide"]) {
         mark.setIcon(death_icons.make("small_glock_skull_jitter"));
       } else {
@@ -244,8 +288,8 @@ map.on('zoomend', function() {
     }
   }
   if (current_zoom === 15 && last_zoom === 14) {
-    for (_k = 0, _len2 = markers.length; _k < _len2; _k++) {
-      mark = markers[_k];
+    for (_l = 0, _len3 = markers.length; _l < _len3; _l++) {
+      mark = markers[_l];
       if (mark["homicide"]) {
         mark.setIcon(death_icons.make("medium_glock_skull_jitter"));
       } else {
