@@ -20,7 +20,10 @@ gotLocation = (pos) ->
 
 class IconFactory 
   constructor: (@types)->
-    # console.log types
+  # console.log types
+
+  # this just populates objects for icon options that were passed to the constructor
+  # if one of the options is a function, it gets passed the seed and the return value is used
   make: (type) ->
     obj = @types[type]
     options = new obj.constructor()
@@ -34,6 +37,28 @@ class IconFactory
     an_icon = L.icon options
     return an_icon
 
+
+
+class BetterIconFactory 
+  constructor: (@types)->
+  # console.log types
+
+  set_icon_sizes: (@sizes)->
+
+  # this just populates objects for icon options that were passed to the constructor
+  # if one of the options is a function, it gets passed the seed and the return value is used
+  make: (type) ->
+    obj = @types[type]
+    options = new obj.constructor()
+    seed = Math.random()
+    for key of obj
+        if typeof obj[key] is "function"
+          options[key] = obj[key](seed)
+        else
+          options[key] = obj[key]
+
+    an_icon = L.icon options
+    return an_icon
 
 
 
@@ -159,6 +184,9 @@ death_icons = new IconFactory
       options = ["img/ity/glock.png", "img/ity/glock_rot1.png", "img/ity/glock_rot2.png", "img/ity/glock_reverse.png", "img/ity/glock_rot1_reverse.png", "img/ity/glock_rot2_reverse.png",]
       options[ Math.floor(seed * options.length) ]
 
+
+
+
 start = [40.72677093147629, -73.9226245880127]
 
 toner_layer = new L.StamenTileLayer "toner-lite", 
@@ -177,6 +205,11 @@ map = new L.Map "map",
   zoom: last_zoom
   layers: [toner_layer] #watercolor_layer
 # map.addLayer(layer)
+
+
+# map.on 'click', (e)-> 
+#     console.log (e.latlng)
+
 
 toner_layer.setOpacity(0.5)
 
@@ -242,10 +275,23 @@ reqListener =()->
 
 url = "motor_related_deaths.json"
 
+# DEBUG
+# DEBUG
+# DEBUG
+debug = true
+bridge = {lat:40.714736512395284, long:-73.97661209106445}
+x= bridge
+mark = L.marker([x.lat, x.long], {icon: death_icons.make("medium_glock_skull_jitter"), clickable: false, opacity: marker_opacity, title: "hello"})
+mark.addTo(map)
+mark = L.marker([x.lat, x.long], {icon: death_icons.make("small_skull"), clickable: false, opacity: marker_opacity, title: "hello"})
+mark.addTo(map)
+
+
 oReq = new XMLHttpRequest()
 oReq.addEventListener('load', reqListener)
 oReq.open("get", url, true)
-oReq.send()
+if not debug 
+  oReq.send()
 
 # # SAME AS ABOVE
 # # but with glock_skull, and longitude, lat
@@ -268,7 +314,8 @@ url = "murders.json"
 oReq = new XMLHttpRequest()
 oReq.addEventListener('load', reqListener)
 oReq.open("get", url, true)
-oReq.send()
+if not debug 
+  oReq.send()
 
 
 # var myMarker = new L.CircleMarker([10,10], { /* Options */ });

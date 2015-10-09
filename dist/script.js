@@ -1,4 +1,4 @@
-var IconFactory, death_icons, get_location, gotLocation, last_zoom, map, marker_opacity, markers, months, oReq, reqListener, start, toner_layer, url;
+var BetterIconFactory, IconFactory, bridge, death_icons, debug, get_location, gotLocation, last_zoom, map, mark, marker_opacity, markers, months, oReq, reqListener, start, toner_layer, url, x;
 
 get_location = function() {
   if ("geolocation" in navigator) {
@@ -44,6 +44,35 @@ IconFactory = (function() {
   };
 
   return IconFactory;
+
+})();
+
+BetterIconFactory = (function() {
+  function BetterIconFactory(types) {
+    this.types = types;
+  }
+
+  BetterIconFactory.prototype.set_icon_sizes = function(sizes) {
+    this.sizes = sizes;
+  };
+
+  BetterIconFactory.prototype.make = function(type) {
+    var an_icon, key, obj, options, seed;
+    obj = this.types[type];
+    options = new obj.constructor();
+    seed = Math.random();
+    for (key in obj) {
+      if (typeof obj[key] === "function") {
+        options[key] = obj[key](seed);
+      } else {
+        options[key] = obj[key];
+      }
+    }
+    an_icon = L.icon(options);
+    return an_icon;
+  };
+
+  return BetterIconFactory;
 
 })();
 
@@ -320,18 +349,47 @@ reqListener = function() {
 
 url = "motor_related_deaths.json";
 
+debug = true;
+
+bridge = {
+  lat: 40.714736512395284,
+  long: -73.97661209106445
+};
+
+x = bridge;
+
+mark = L.marker([x.lat, x.long], {
+  icon: death_icons.make("medium_glock_skull_jitter"),
+  clickable: false,
+  opacity: marker_opacity,
+  title: "hello"
+});
+
+mark.addTo(map);
+
+mark = L.marker([x.lat, x.long], {
+  icon: death_icons.make("small_skull"),
+  clickable: false,
+  opacity: marker_opacity,
+  title: "hello"
+});
+
+mark.addTo(map);
+
 oReq = new XMLHttpRequest();
 
 oReq.addEventListener('load', reqListener);
 
 oReq.open("get", url, true);
 
-oReq.send();
+if (!debug) {
+  oReq.send();
+}
 
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 reqListener = function() {
-  var data, i, mark, title, x, _i, _len, _results;
+  var data, i, title, _i, _len, _results;
   data = JSON.parse(this.responseText);
   _results = [];
   for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
@@ -359,4 +417,6 @@ oReq.addEventListener('load', reqListener);
 
 oReq.open("get", url, true);
 
-oReq.send();
+if (!debug) {
+  oReq.send();
+}
