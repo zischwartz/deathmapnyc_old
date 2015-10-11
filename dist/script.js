@@ -1,4 +1,5 @@
-var BetterIconFactory, IconFactory, bridge, death_icons, debug, get_location, gotLocation, last_zoom, map, mark, marker_opacity, markers, months, oReq, reqListener, start, toner_layer, url, x;
+var BetterIconFactory, IconFactory, better_icons, bridge, debug, get_location, gotLocation, last_zoom, map, mark, marker_opacity, markers, months, oReq, reqListener, toner_layer, url, x,
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 get_location = function() {
   if ("geolocation" in navigator) {
@@ -50,20 +51,25 @@ IconFactory = (function() {
 BetterIconFactory = (function() {
   function BetterIconFactory(types) {
     this.types = types;
+    this.get_ratio = __bind(this.get_ratio, this);
   }
 
-  BetterIconFactory.prototype.set_icon_sizes = function(sizes) {
-    this.sizes = sizes;
-  };
-
-  BetterIconFactory.prototype.make = function(type) {
-    var an_icon, key, obj, options, seed;
+  BetterIconFactory.prototype.make = function(type, size, jitter) {
+    var an_icon, jitter_multiplier, key, obj, options, ratio, seed;
+    if (jitter == null) {
+      jitter = false;
+    }
     obj = this.types[type];
     options = new obj.constructor();
     seed = Math.random();
+    ratio = this.get_ratio(size);
+    jitter_multiplier = 40 * 2;
     for (key in obj) {
       if (typeof obj[key] === "function") {
-        options[key] = obj[key](seed);
+        if (jitter) {
+          jitter = [(Math.random() - 0.5) * jitter_multiplier, (Math.random() - 0.5) * jitter_multiplier];
+        }
+        options[key] = obj[key](size, ratio, seed, jitter);
       } else {
         options[key] = obj[key];
       }
@@ -72,196 +78,69 @@ BetterIconFactory = (function() {
     return an_icon;
   };
 
+  BetterIconFactory.prototype.get_ratio = function(size) {
+    var ratio;
+    ratio = this.types["sizes"].indexOf(size);
+    return Math.pow(2, ratio);
+  };
+
   return BetterIconFactory;
 
 })();
 
-death_icons = new IconFactory({
-  medium_skull: {
-    iconSize: [80, 106],
-    iconAnchor: [40, 106],
-    iconUrl: 'img/medium/skull.png'
-  },
-  medium_glock_skull: {
-    iconSize: [80, 106],
-    iconAnchor: [40, 106],
-    iconUrl: 'img/medium/skull.png',
-    shadowSize: [108, 84],
-    shadowAnchor: function(seed) {
-      var n;
-      n = Math.floor(seed * 6);
-      if (n <= 2) {
-        return [140, 100 * seed + 60];
+better_icons = new BetterIconFactory({
+  sizes: ["medium", "small", "tiny", "ity"],
+  skull: {
+    iconSize: function(size, ratio) {
+      return [80 / ratio, 106 / ratio];
+    },
+    iconAnchor: function(size, ratio, seed, jitter) {
+      if (jitter === false) {
+        return [40 / ratio, 70 / ratio];
       } else {
-        return [-40, 100 * seed + 60];
+        return [(jitter[0] + 40) / ratio, (jitter[1] + 70) / ratio];
       }
     },
-    shadowUrl: function(seed) {
-      var options;
-      options = ["img/medium/glock.png", "img/medium/glock_rot1.png", "img/medium/glock_rot2.png", "img/medium/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png"];
-      return options[Math.floor(seed * options.length)];
+    iconUrl: function(size) {
+      return "img/" + size + "/skull.png";
     }
   },
-  small_skull: {
-    iconSize: [80 / 2, 106 / 2],
-    iconAnchor: [40 / 2, 106 / 2],
-    iconUrl: 'img/medium/skull.png'
-  },
-  small_glock_skull: {
-    iconSize: [80 / 2, 106 / 2],
-    iconAnchor: [40 / 2, 106 / 2],
-    iconUrl: 'img/medium/skull.png',
-    shadowSize: [108 / 2, 84 / 2],
-    shadowAnchor: function(seed) {
-      var n;
+  glock_skull: {
+    iconSize: function(size, ratio) {
+      return [80 / ratio, 106 / ratio];
+    },
+    iconAnchor: function(size, ratio, seed, jitter) {
+      return [(jitter[0] + 40) / ratio, (jitter[1] + 70) / ratio];
+    },
+    iconUrl: function(size) {
+      return "img/" + size + "/skull.png";
+    },
+    shadowSize: function(size, ratio, seed) {
+      return [108 / ratio, 84 / ratio];
+    },
+    shadowAnchor: function(size, ratio, seed, jitter) {
+      var glock_jit_x, glock_jit_y, n;
       n = Math.floor(seed * 6);
+      glock_jit_x = (Math.random() - 0.5) * 20 + jitter[0];
       if (n <= 2) {
-        return [140 / 2, 100 / 2 * seed + 60 / 2];
+        glock_jit_y = seed * 40 + jitter[1];
+        return [(glock_jit_x + 140) / ratio, (glock_jit_y + 50) / ratio];
       } else {
-        return [-40 / 2, 100 / 2 * seed + 60 / 2];
+        glock_jit_y = (seed - 0.5) * 40 + jitter[1];
+        return [(-30 + glock_jit_x) / ratio, (glock_jit_y + 50) / ratio];
       }
     },
-    shadowUrl: function(seed) {
+    shadowUrl: function(size, ratio, seed) {
       var options;
-      options = ["img/small/glock.png", "img/small/glock_rot1.png", "img/small/glock_rot2.png", "img/small/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png"];
-      return options[Math.floor(seed * options.length)];
-    }
-  },
-  medium_skull_jitter: {
-    iconSize: function(s) {
-      return [80, 106];
-    },
-    iconAnchor: function(s) {
-      return [Math.random() * 40 + 40, Math.random() * 40 + 106];
-    },
-    iconUrl: 'img/medium/skull.png'
-  },
-  medium_glock_skull_jitter: {
-    iconSize: function(s) {
-      return [80, 106];
-    },
-    iconAnchor: function(s) {
-      return [Math.random() * 40 + 40, Math.random() * 40 + 106];
-    },
-    iconUrl: 'img/medium/skull.png',
-    shadowSize: [108, 84],
-    shadowAnchor: function(seed) {
-      var n;
-      n = Math.floor(seed * 6);
-      if (n <= 2) {
-        return [140, 100 * Math.random() + 60];
-      } else {
-        return [-10, 100 * Math.random() + 60];
-      }
-    },
-    shadowUrl: function(seed) {
-      var options;
-      options = ["img/medium/glock.png", "img/medium/glock_rot1.png", "img/medium/glock_rot2.png", "img/medium/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png"];
-      return options[Math.floor(seed * options.length)];
-    }
-  },
-  small_skull_jitter: {
-    iconSize: function(s) {
-      return [80 / 2, 106 / 2];
-    },
-    iconAnchor: function(s) {
-      return [Math.random() * 20 + 40 / 2, Math.random() * 20 + 106 / 2];
-    },
-    iconUrl: 'img/small/skull.png'
-  },
-  small_glock_skull_jitter: {
-    iconSize: function(s) {
-      return [80 / 2, 106 / 2];
-    },
-    iconAnchor: function(s) {
-      return [Math.random() * 20 + 40 / 2, Math.random() * 20 + 106 / 2];
-    },
-    iconUrl: 'img/small/skull.png',
-    shadowSize: [108 / 2, 84 / 2],
-    shadowAnchor: function(seed) {
-      var n;
-      n = Math.floor(seed * 6);
-      if (n <= 2) {
-        return [140 / 2, 100 / 2 * Math.random() + 60 / 2];
-      } else {
-        return [-10, 100 / 2 * Math.random() + 60 / 2];
-      }
-    },
-    shadowUrl: function(seed) {
-      var options;
-      options = ["img/small/glock.png", "img/small/glock_rot1.png", "img/small/glock_rot2.png", "img/small/glock_reverse.png", "img/medium/glock_rot1_reverse.png", "img/medium/glock_rot2_reverse.png"];
-      return options[Math.floor(seed * options.length)];
-    }
-  },
-  tiny_skull_jitter: {
-    iconSize: function(s) {
-      return [80 / 4, 106 / 4];
-    },
-    iconAnchor: function(s) {
-      return [Math.random() * 20 + 40 / 4, Math.random() * 20 + 106 / 4];
-    },
-    iconUrl: 'img/tiny/skull.png'
-  },
-  tiny_glock_skull_jitter: {
-    iconSize: function(s) {
-      return [80 / 4, 106 / 4];
-    },
-    iconAnchor: function(s) {
-      return [Math.random() * 20 + 40 / 4, Math.random() * 20 + 106 / 4];
-    },
-    iconUrl: 'img/tiny/skull.png',
-    shadowSize: [108 / 4, 84 / 4],
-    shadowAnchor: function(seed) {
-      var n;
-      n = Math.floor(seed * 6);
-      if (n <= 2) {
-        return [200 / 4, 100 / 4 * Math.random() + 80 / 4];
-      } else {
-        return [-5, 100 / 4 * Math.random() + 80 / 4];
-      }
-    },
-    shadowUrl: function(seed) {
-      var options;
-      options = ["img/tiny/glock.png", "img/tiny/glock_rot1.png", "img/tiny/glock_rot2.png", "img/tiny/glock_reverse.png", "img/tiny/glock_rot1_reverse.png", "img/tiny/glock_rot2_reverse.png"];
-      return options[Math.floor(seed * options.length)];
-    }
-  },
-  ity_skull_jitter: {
-    iconSize: function(s) {
-      return [80 / 8, 106 / 8];
-    },
-    iconAnchor: function(s) {
-      return [Math.random() * 20 + 40 / 8, Math.random() * 20 + 106 / 8];
-    },
-    iconUrl: 'img/ity/skull.png'
-  },
-  ity_glock_skull_jitter: {
-    iconSize: function(s) {
-      return [80 / 8, 106 / 8];
-    },
-    iconAnchor: function(s) {
-      return [Math.random() * 20 + 40 / 8, Math.random() * 20 + 106 / 8];
-    },
-    iconUrl: 'img/ity/skull.png',
-    shadowSize: [108 / 8, 84 / 8],
-    shadowAnchor: function(seed) {
-      var n;
-      n = Math.floor(seed * 6);
-      if (n <= 2) {
-        return [34, 100 / 8 * Math.random() + 80 / 8];
-      } else {
-        return [-5, 100 / 8 * Math.random() + 80 / 8];
-      }
-    },
-    shadowUrl: function(seed) {
-      var options;
-      options = ["img/ity/glock.png", "img/ity/glock_rot1.png", "img/ity/glock_rot2.png", "img/ity/glock_reverse.png", "img/ity/glock_rot1_reverse.png", "img/ity/glock_rot2_reverse.png"];
+      options = ["img/" + size + "/glock.png", "img/" + size + "/glock_rot1.png", "img/" + size + "/glock_rot2.png", "img/" + size + "/glock_reverse.png", "img/" + size + "/glock_rot1_reverse.png", "img/" + size + "/glock_rot2_reverse.png"];
       return options[Math.floor(seed * options.length)];
     }
   }
 });
 
-start = [40.72677093147629, -73.9226245880127];
+debug = false;
+
+bridge = new L.LatLng(40.714736512395284, -73.97661209106445);
 
 toner_layer = new L.StamenTileLayer("toner-lite", {
   attribution: "Map tiles by <a href=\"http://stamen.com\">Stamen Design</a>, under <a href=\"http://creativecommons.org/licenses/by/3.0\">CC BY 3.0</a>. Data by <a href=\"http://openstreetmap.org\">OpenStreetMap</a>, under <a href=\"http://www.openstreetmap.org/copyright\">ODbL</a>."
@@ -274,69 +153,37 @@ marker_opacity = 1;
 last_zoom = 13;
 
 map = new L.Map("map", {
-  center: new L.LatLng(start[0], start[1]),
+  center: bridge,
   zoom: last_zoom,
   layers: [toner_layer]
 });
 
+x = bridge;
+
+mark = L.marker(bridge, {
+  icon: better_icons.make("glock_skull", "tiny", true),
+  clickable: false,
+  opacity: marker_opacity,
+  title: "hello"
+}).addTo(map);
+
 toner_layer.setOpacity(0.5);
 
 map.on('zoomend', function() {
-  var current_zoom, mark, _i, _j, _k, _l, _len, _len1, _len2, _len3;
+  var current_zoom;
   current_zoom = map.getZoom();
   console.log(current_zoom, last_zoom);
-  if (current_zoom === 12 && last_zoom === 13) {
-    for (_i = 0, _len = markers.length; _i < _len; _i++) {
-      mark = markers[_i];
-      if (mark["homicide"]) {
-        mark.setIcon(death_icons.make("ity_glock_skull_jitter"));
-      } else {
-        mark.setIcon(death_icons.make("ity_skull_jitter"));
-      }
-    }
-  }
-  if (current_zoom === 13 && last_zoom === 14 || current_zoom === 13 && last_zoom === 12) {
-    console.log('def');
-    for (_j = 0, _len1 = markers.length; _j < _len1; _j++) {
-      mark = markers[_j];
-      if (mark["homicide"]) {
-        mark.setIcon(death_icons.make("tiny_glock_skull_jitter"));
-      } else {
-        mark.setIcon(death_icons.make("tiny_skull_jitter"));
-      }
-    }
-  }
-  if (current_zoom === 14 && last_zoom === 13 || current_zoom === 14 && last_zoom === 15) {
-    for (_k = 0, _len2 = markers.length; _k < _len2; _k++) {
-      mark = markers[_k];
-      if (mark["homicide"]) {
-        mark.setIcon(death_icons.make("small_glock_skull_jitter"));
-      } else {
-        mark.setIcon(death_icons.make("small_skull_jitter"));
-      }
-    }
-  }
-  if (current_zoom === 15 && last_zoom === 14) {
-    for (_l = 0, _len3 = markers.length; _l < _len3; _l++) {
-      mark = markers[_l];
-      if (mark["homicide"]) {
-        mark.setIcon(death_icons.make("medium_glock_skull_jitter"));
-      } else {
-        mark.setIcon(death_icons.make("medium_skull_jitter"));
-      }
-    }
-  }
   return last_zoom = current_zoom;
 });
 
 reqListener = function() {
-  var data, i, mark, x, _i, _len, _results;
+  var data, i, _i, _len, _results;
   data = JSON.parse(this.responseText);
   _results = [];
   for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
     x = data[i];
     mark = L.marker([x.lat, x.long], {
-      icon: death_icons.make("tiny_skull_jitter"),
+      icon: better_icons.make("skull", "tiny", true),
       clickable: false,
       opacity: marker_opacity,
       title: "hello"
@@ -348,33 +195,6 @@ reqListener = function() {
 };
 
 url = "motor_related_deaths.json";
-
-debug = true;
-
-bridge = {
-  lat: 40.714736512395284,
-  long: -73.97661209106445
-};
-
-x = bridge;
-
-mark = L.marker([x.lat, x.long], {
-  icon: death_icons.make("medium_glock_skull_jitter"),
-  clickable: false,
-  opacity: marker_opacity,
-  title: "hello"
-});
-
-mark.addTo(map);
-
-mark = L.marker([x.lat, x.long], {
-  icon: death_icons.make("small_skull"),
-  clickable: false,
-  opacity: marker_opacity,
-  title: "hello"
-});
-
-mark.addTo(map);
 
 oReq = new XMLHttpRequest();
 
@@ -396,7 +216,7 @@ reqListener = function() {
     x = data[i];
     title = months[x["MO"]] + ' ' + x["YR"];
     mark = L.marker([x.latitude, x.longitude], {
-      icon: death_icons.make("tiny_glock_skull_jitter"),
+      icon: better_icons.make("glock_skull", "tiny", true),
       riseOnHover: true,
       clickable: false,
       opacity: marker_opacity,
