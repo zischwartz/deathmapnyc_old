@@ -1,4 +1,4 @@
-var BetterIconFactory, IconFactory, better_icons, bridge, debug, get_location, gotLocation, last_zoom, map, mark, marker_opacity, markers, months, oReq, reqListener, toner_layer, url, x,
+var BetterIconFactory, better_icons, bridge, debug, get_location, gotLocation, last_zoom, map, mark, marker_opacity, markers, months, oReq, reqListener, toner_layer, url, x,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 get_location = function() {
@@ -23,31 +23,6 @@ gotLocation = function(pos) {
   return console.log(meters);
 };
 
-IconFactory = (function() {
-  function IconFactory(types) {
-    this.types = types;
-  }
-
-  IconFactory.prototype.make = function(type) {
-    var an_icon, key, obj, options, seed;
-    obj = this.types[type];
-    options = new obj.constructor();
-    seed = Math.random();
-    for (key in obj) {
-      if (typeof obj[key] === "function") {
-        options[key] = obj[key](seed);
-      } else {
-        options[key] = obj[key];
-      }
-    }
-    an_icon = L.icon(options);
-    return an_icon;
-  };
-
-  return IconFactory;
-
-})();
-
 BetterIconFactory = (function() {
   function BetterIconFactory(types) {
     this.types = types;
@@ -55,19 +30,20 @@ BetterIconFactory = (function() {
   }
 
   BetterIconFactory.prototype.make = function(type, size, jitter) {
-    var an_icon, jitter_multiplier, key, obj, options, ratio, seed;
+    var an_icon, jitter_multiplier, key, normal, obj, options, ratio, seed;
     if (jitter == null) {
       jitter = false;
     }
+    jitter_multiplier = 100;
     obj = this.types[type];
     options = new obj.constructor();
     seed = Math.random();
     ratio = this.get_ratio(size);
-    jitter_multiplier = 40 * 2;
     for (key in obj) {
       if (typeof obj[key] === "function") {
         if (jitter) {
-          jitter = [(Math.random() - 0.5) * jitter_multiplier, (Math.random() - 0.5) * jitter_multiplier];
+          normal = d3.random.normal(0, 0.5);
+          jitter = [normal() * jitter_multiplier, normal() * jitter_multiplier];
         }
         options[key] = obj[key](size, ratio, seed, jitter);
       } else {
@@ -110,7 +86,11 @@ better_icons = new BetterIconFactory({
       return [80 / ratio, 106 / ratio];
     },
     iconAnchor: function(size, ratio, seed, jitter) {
-      return [(jitter[0] + 40) / ratio, (jitter[1] + 70) / ratio];
+      if (jitter === false) {
+        return [40 / ratio, 70 / ratio];
+      } else {
+        return [(jitter[0] + 40) / ratio, (jitter[1] + 70) / ratio];
+      }
     },
     iconUrl: function(size) {
       return "img/" + size + "/skull.png";
@@ -119,14 +99,20 @@ better_icons = new BetterIconFactory({
       return [108 / ratio, 84 / ratio];
     },
     shadowAnchor: function(size, ratio, seed, jitter) {
-      var glock_jit_x, glock_jit_y, n;
+      var glock_jit_x, glock_jit_y, n, normal;
+      if (!jitter) {
+        jitter = [0, 0];
+      }
       n = Math.floor(seed * 6);
-      glock_jit_x = (Math.random() - 0.5) * 20 + jitter[0];
+      normal = function() {
+        return 0;
+      };
+      glock_jit_x = normal() + jitter[0];
       if (n <= 2) {
-        glock_jit_y = seed * 40 + jitter[1];
+        glock_jit_y = seed * 2 + jitter[1];
         return [(glock_jit_x + 140) / ratio, (glock_jit_y + 50) / ratio];
       } else {
-        glock_jit_y = (seed - 0.5) * 40 + jitter[1];
+        glock_jit_y = (seed - 0.5) * 2 + jitter[1];
         return [(-30 + glock_jit_x) / ratio, (glock_jit_y + 50) / ratio];
       }
     },
@@ -161,6 +147,13 @@ map = new L.Map("map", {
 x = bridge;
 
 mark = L.marker(bridge, {
+  icon: better_icons.make("glock_skull", "tiny", false),
+  clickable: false,
+  opacity: marker_opacity,
+  title: "hello"
+}).addTo(map);
+
+mark = L.marker(bridge, {
   icon: better_icons.make("glock_skull", "tiny", true),
   clickable: false,
   opacity: marker_opacity,
@@ -170,9 +163,50 @@ mark = L.marker(bridge, {
 toner_layer.setOpacity(0.5);
 
 map.on('zoomend', function() {
-  var current_zoom;
+  var current_zoom, _i, _j, _k, _l, _len, _len1, _len2, _len3;
   current_zoom = map.getZoom();
   console.log(current_zoom, last_zoom);
+  if (current_zoom === 12 && last_zoom === 13) {
+    for (_i = 0, _len = markers.length; _i < _len; _i++) {
+      mark = markers[_i];
+      if (mark["homicide"]) {
+        mark.setIcon(better_icons.make("glock_skull", "ity", true));
+      } else {
+        mark.setIcon(better_icons.make("skull", "ity", true));
+      }
+    }
+  }
+  if (current_zoom === 13 && last_zoom === 14 || current_zoom === 13 && last_zoom === 12) {
+    console.log('def');
+    for (_j = 0, _len1 = markers.length; _j < _len1; _j++) {
+      mark = markers[_j];
+      if (mark["homicide"]) {
+        mark.setIcon(better_icons.make("glock_skull", "tiny", true));
+      } else {
+        mark.setIcon(better_icons.make("skull", "tiny", true));
+      }
+    }
+  }
+  if (current_zoom === 14 && last_zoom === 13 || current_zoom === 14 && last_zoom === 15) {
+    for (_k = 0, _len2 = markers.length; _k < _len2; _k++) {
+      mark = markers[_k];
+      if (mark["homicide"]) {
+        mark.setIcon(better_icons.make("glock_skull", "small", true));
+      } else {
+        mark.setIcon(better_icons.make("skull", "small", true));
+      }
+    }
+  }
+  if (current_zoom === 15 && last_zoom === 14) {
+    for (_l = 0, _len3 = markers.length; _l < _len3; _l++) {
+      mark = markers[_l];
+      if (mark["homicide"]) {
+        mark.setIcon(better_icons.make("glock_skull", "medium", true));
+      } else {
+        mark.setIcon(better_icons.make("skull", "medium", true));
+      }
+    }
+  }
   return last_zoom = current_zoom;
 });
 
