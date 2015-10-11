@@ -1,4 +1,4 @@
-var BetterIconFactory, better_icons, bridge, debug, get_location, gotLocation, last_zoom, map, mark, marker_opacity, markers, months, oReq, reqListener, toner_layer, url, x,
+var BetterIconFactory, better_icons, bridge, debug, get_location, gotLocation, last_zoom, map, marker_opacity, markers, months, oReq, reqListener, toner_layer, url, x,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 get_location = function() {
@@ -39,12 +39,12 @@ BetterIconFactory = (function() {
     options = new obj.constructor();
     seed = Math.random();
     ratio = this.get_ratio(size);
+    if (jitter) {
+      normal = d3.random.normal(0, 0.5);
+      jitter = [normal() * jitter_multiplier, normal() * jitter_multiplier];
+    }
     for (key in obj) {
       if (typeof obj[key] === "function") {
-        if (jitter) {
-          normal = d3.random.normal(0, 0.5);
-          jitter = [normal() * jitter_multiplier, normal() * jitter_multiplier];
-        }
         options[key] = obj[key](size, ratio, seed, jitter);
       } else {
         options[key] = obj[key];
@@ -104,15 +104,12 @@ better_icons = new BetterIconFactory({
         jitter = [0, 0];
       }
       n = Math.floor(seed * 6);
-      normal = function() {
-        return 0;
-      };
-      glock_jit_x = normal() + jitter[0];
+      normal = d3.random.normal(0, 1);
+      glock_jit_x = normal() * 10 + jitter[0];
+      glock_jit_y = (seed - 0.5) * 5 + jitter[1];
       if (n <= 2) {
-        glock_jit_y = seed * 2 + jitter[1];
         return [(glock_jit_x + 140) / ratio, (glock_jit_y + 50) / ratio];
       } else {
-        glock_jit_y = (seed - 0.5) * 2 + jitter[1];
         return [(-30 + glock_jit_x) / ratio, (glock_jit_y + 50) / ratio];
       }
     },
@@ -146,24 +143,10 @@ map = new L.Map("map", {
 
 x = bridge;
 
-mark = L.marker(bridge, {
-  icon: better_icons.make("glock_skull", "tiny", false),
-  clickable: false,
-  opacity: marker_opacity,
-  title: "hello"
-}).addTo(map);
-
-mark = L.marker(bridge, {
-  icon: better_icons.make("glock_skull", "tiny", true),
-  clickable: false,
-  opacity: marker_opacity,
-  title: "hello"
-}).addTo(map);
-
 toner_layer.setOpacity(0.5);
 
 map.on('zoomend', function() {
-  var current_zoom, _i, _j, _k, _l, _len, _len1, _len2, _len3;
+  var current_zoom, mark, _i, _j, _k, _l, _len, _len1, _len2, _len3;
   current_zoom = map.getZoom();
   console.log(current_zoom, last_zoom);
   if (current_zoom === 12 && last_zoom === 13) {
@@ -211,7 +194,7 @@ map.on('zoomend', function() {
 });
 
 reqListener = function() {
-  var data, i, _i, _len, _results;
+  var data, i, mark, _i, _len, _results;
   data = JSON.parse(this.responseText);
   _results = [];
   for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
@@ -243,7 +226,7 @@ if (!debug) {
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 reqListener = function() {
-  var data, i, title, _i, _len, _results;
+  var data, i, mark, title, _i, _len, _results;
   data = JSON.parse(this.responseText);
   _results = [];
   for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {

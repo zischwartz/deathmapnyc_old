@@ -30,14 +30,11 @@ class BetterIconFactory
     options = new obj.constructor()
     seed = Math.random()
     ratio = @get_ratio(size)
+    if jitter
+      normal =d3.random.normal(0, 0.5)
+      jitter = [normal()*jitter_multiplier, normal()*jitter_multiplier]
     for key of obj
         if typeof obj[key] is "function"
-          if jitter
-            normal =d3.random.normal(0, 0.5)
-            # jitter =[(Math.random()-0.5)*jitter_multiplier, (Math.random()-0.5)*jitter_multiplier]
-            jitter = [normal()*jitter_multiplier, normal()*jitter_multiplier]
-
-
           options[key] = obj[key](size, ratio, seed, jitter)
         else
           options[key] = obj[key]
@@ -73,17 +70,19 @@ better_icons = new BetterIconFactory
         if not jitter then jitter =[0,0]
         # console.log size, ratio, seed
         n = Math.floor(seed * 6) # options.length below in shadowUrl is 6
-        # normal =d3.random.normal(0, 0.5)
-        normal = -> 0
-        glock_jit_x = normal()+jitter[0]
+        normal =d3.random.normal(0, 1)
+        # normal = -> 0
+        glock_jit_x = normal()*10+jitter[0]
+        glock_jit_y = (seed-0.5)*5+jitter[1]
+
         # console.log glock_jit_x
         if n <= 2
-          glock_jit_y = seed*2+jitter[1]
+          # glock_jit_y = seed*2+jitter[1]
           # console.log "points right"
           return [(glock_jit_x+140)/ratio, (glock_jit_y+50)/ratio]
         else 
           # console.log jitter[1]
-          glock_jit_y = (seed-0.5)*2+jitter[1]
+          # glock_jit_y = (seed-0.5)*2+jitter[1]
           # console.log "gun points left", glock_jit_y
           [(-30+glock_jit_x)/ratio, (glock_jit_y+50)/ratio]
           # return [-20/ratio, 30/ratio]
@@ -146,8 +145,9 @@ x= bridge
 # mark = L.marker(bridge, {icon: better_icons.make("skull", "small", true), clickable: false, opacity: marker_opacity, title: "hello"})
 # .addTo(map)
 
-mark = L.marker(bridge, {icon: better_icons.make("glock_skull", "tiny", false), clickable: false, opacity: marker_opacity, title: "hello"}).addTo(map)
-mark = L.marker(bridge, {icon: better_icons.make("glock_skull", "tiny", true), clickable: false, opacity: marker_opacity, title: "hello"}).addTo(map)
+# mark = L.marker(bridge, {icon: better_icons.make("glock_skull", "medium", true), clickable: false, opacity: marker_opacity, title: "hello"}).addTo(map)
+# mark = L.marker(bridge, {icon: better_icons.make("glock_skull", "medium", true), clickable: false, opacity: marker_opacity, title: "hello"}).addTo(map)
+# mark = L.marker(bridge, {icon: better_icons.make("glock_skull", "medium", true), clickable: false, opacity: marker_opacity, title: "hello"}).addTo(map)
 
 # mark = L.marker(bridge, {icon: better_icons.make("small_skull"), clickable: false, opacity: marker_opacity, title: "hello"})
 # mark.addTo(map)
