@@ -3,6 +3,7 @@
 <head>
 	<title>Death Map</title>
 	 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+	<link href='https://fonts.googleapis.com/css?family=Slabo+27px' rel='stylesheet' type='text/css'>
 	 <style>
 
 	 img {
@@ -52,17 +53,74 @@
 	 	border-collapse: collapse;
 	 	border-spacing: 0;
 	 }
-
+	 body {
+	 	font-family: 'Slabo 27px', serif;
+	 }
 	 
+	 nav {
+	 	/*background-color: #191919;*/
+	 	background-color: rgba(50, 50, 50, 0.7);
+	 	display: block;
+	 	position: absolute;
+	 	z-index: 100;
+	 }
+
+	 li {
+	 	/*float: right;*/
+	 	display: inline-block;
+	 	padding: 5px 10px;
+	 }
+
+	.leaflet-top .leaflet-control {
+		margin-top: 40px;
+	}
+	 li a {
+	 	font-size: 15px;
+	 	padding: 10px;
+	 	text-decoration: none;
+	 	color: #F5F0F0 !important;
+	 }
+	 li:first-child a{
+	 	color: #FDFDFD !important;
+	 	font-size: 22px;
+	 }
+	 li a:hover {
+	 	text-decoration: underline;
+	 }
+
 	 #map { 
  		height: 100%;
  		position: absolute;
  		width: 100%; 
 	 	}
+
+	 	div.about {
+	 		max-width: 400px;
+	 		padding: 60px;
+	 		color: #F5F0F0;
+	 		line-height: 1.5em;
+	 		display: none;
+	 	}
+
 	 </style>
 </head>
 <body>
-
+<nav>
+  <ul>
+    <li><a class="logo" href="/">death map nyc</a></li>
+    <li><a class="about" href="#">about/caveats</a></li>
+    <li><a class="goto" href="#">go to location</a></li>
+  </ul>
+  <div class="about">
+  		Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+  		tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+  		quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+  		consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+  		cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+  		proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  		proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  </div>
+</nav>
  <div id="map"></div>
 
  <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>

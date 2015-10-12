@@ -1,4 +1,85 @@
-var BetterIconFactory, better_icons, bridge, debug, get_location, gotLocation, last_zoom, map, marker_opacity, markers, months, oReq, reqListener, toner_layer, url, x,
+(function () {
+
+    function defineSnogylop(L) {
+
+        var worldLatlngs = [
+            L.latLng([90, 180]),
+            L.latLng([90, -180]),
+            L.latLng([-90, -180]),
+            L.latLng([-90, 180])
+        ];
+
+        L.extend(L.Polygon.prototype, {
+
+            initialize: function (latlngs, options) {
+                worldLatlngs = (options.worldLatLngs ? options.worldLatLngs : worldLatlngs);
+
+                if (options && options.invert && !options.invertMultiPolygon) {
+                    // Create a new set of latlngs, adding our world-sized ring
+                    // first
+                    var newLatlngs = [];
+                    newLatlngs.push(worldLatlngs);
+                    newLatlngs.push(latlngs[0]);
+                    latlngs = newLatlngs;
+                }
+
+                L.Polyline.prototype.initialize.call(this, latlngs, options);
+                this._initWithHoles(latlngs);
+            },
+
+            getBounds: function () {
+                if (this.options.invert) {
+                    // Don't return the world-sized ring's bounds, that's not
+                    // helpful!
+                    return new L.LatLngBounds(this._holes);
+                }
+                return new L.LatLngBounds(this.getLatLngs());
+            },
+
+        });
+
+        L.extend(L.MultiPolygon.prototype, {
+
+            initialize: function (latlngs, options) {
+                worldLatlngs = (options.worldLatLngs ? options.worldLatLngs : worldLatlngs);
+                this._layers = {};
+                this._options = options;
+
+                if (options.invert) {
+                    // Let Polygon know we're part of a MultiPolygon
+                    options.invertMultiPolygon = true;
+
+                    // Create a new set of latlngs, adding our world-sized ring
+                    // first
+                    var newLatlngs = [];
+                    newLatlngs.push(worldLatlngs);
+                    for (var l in latlngs) {
+                        newLatlngs.push(latlngs[l][0]);
+                    }
+                    latlngs = [newLatlngs];
+                }
+
+                this.setLatLngs(latlngs);
+            },
+
+        });
+
+    }
+
+    if (typeof define === 'function' && define.amd) {
+        // Try to add snogylop to Leaflet using AMD
+        define(['leaflet'], function (L) {
+            defineSnogylop(L);
+        });
+    }
+    else {
+        // Else use the global L
+        defineSnogylop(L);
+    }
+
+})();
+
+var BetterIconFactory, better_icons, bridge, debug, get_location, gotLocation, last_zoom, map, marker_opacity, markers, months, oReq, reqListener, toner_layer, url,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 get_location = function() {
@@ -141,8 +222,6 @@ map = new L.Map("map", {
   layers: [toner_layer]
 });
 
-x = bridge;
-
 toner_layer.setOpacity(0.5);
 
 map.on('zoomend', function() {
@@ -194,7 +273,7 @@ map.on('zoomend', function() {
 });
 
 reqListener = function() {
-  var data, i, mark, _i, _len, _results;
+  var data, i, mark, x, _i, _len, _results;
   data = JSON.parse(this.responseText);
   _results = [];
   for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
@@ -226,7 +305,7 @@ if (!debug) {
 months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 reqListener = function() {
-  var data, i, mark, title, _i, _len, _results;
+  var data, i, mark, title, x, _i, _len, _results;
   data = JSON.parse(this.responseText);
   _results = [];
   for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
@@ -247,6 +326,33 @@ reqListener = function() {
 };
 
 url = "murders.json";
+
+oReq = new XMLHttpRequest();
+
+oReq.addEventListener('load', reqListener);
+
+oReq.open("get", url, true);
+
+if (!debug) {
+  oReq.send();
+}
+
+reqListener = function() {
+  var data, style;
+  data = JSON.parse(this.responseText);
+  console.log(data);
+  style = {
+    "color": "white",
+    "weight": 0,
+    "fillOpacity": 0.9
+  };
+  return L.geoJson(data, {
+    invert: true,
+    style: style
+  }).addTo(map);
+};
+
+url = "nyc.json";
 
 oReq = new XMLHttpRequest();
 

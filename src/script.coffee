@@ -74,16 +74,9 @@ better_icons = new BetterIconFactory
         # normal = -> 0
         glock_jit_x = normal()*10+jitter[0]
         glock_jit_y = (seed-0.5)*5+jitter[1]
-
-        # console.log glock_jit_x
         if n <= 2
-          # glock_jit_y = seed*2+jitter[1]
-          # console.log "points right"
           return [(glock_jit_x+140)/ratio, (glock_jit_y+50)/ratio]
         else 
-          # console.log jitter[1]
-          # glock_jit_y = (seed-0.5)*2+jitter[1]
-          # console.log "gun points left", glock_jit_y
           [(-30+glock_jit_x)/ratio, (glock_jit_y+50)/ratio]
           # return [-20/ratio, 30/ratio]
         #   [-40, 100*seed+60]
@@ -131,7 +124,7 @@ map = new L.Map "map",
 # DEBUG DEBUG DEBUG
 # DEBUG DEBUG DEBUG
 # DEBUG DEBUG DEBUG
-x= bridge
+# x= bridge
 # old
 # mark = L.marker(bridge, {icon: better_icons.make("medium_glock_skull_jitter"), clickable: false, opacity: marker_opacity, title: "hello"})
 # mark.addTo(map)
@@ -254,6 +247,39 @@ oReq.open("get", url, true)
 if not debug 
   oReq.send()
 
+
+
+# and again!
+
+reqListener =()->
+  data = JSON.parse this.responseText
+  console.log data
+  style =
+      "color": "white"
+      "weight": 0
+      "fillOpacity": 0.9
+
+  L.geoJson(data, 
+    invert: true
+    style: style
+  ).addTo(map)
+  # a_tiny_skull_icon = better_icons.make("skull", "tiny")
+  # for x, i in data
+    # make the markers, add them to map
+    # mark = L.marker([x.lat, x.long], {icon: a_tiny_skull_icon, clickable: false, opacity: marker_opacity, title: "hello"})
+    # mark = L.marker([x.lat, x.long], {icon: better_icons.make("skull", "tiny", true), clickable: false, opacity: marker_opacity, title: "hello"})
+    # mark.addTo(map)
+    # markers.push mark
+
+url = "nyc.json"
+# url = "nyc.geojson"
+# url = "boroughs.geojson"
+
+oReq = new XMLHttpRequest()
+oReq.addEventListener('load', reqListener)
+oReq.open("get", url, true)
+if not debug 
+  oReq.send()
 
 # var myMarker = new L.CircleMarker([10,10], { /* Options */ });
 

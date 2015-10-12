@@ -43,3 +43,11 @@ files = !find dada.pink/nyc-crime-map-data/ -iname "*.csv"
 http://stackoverflow.com/questions/21149920/pandas-import-multiple-csv-files-into-dataframe-using-a-loop-and-hierarchical-i
 
 d = pandas.concat([pandas.read_csv(f) for f in files])
+
+
+
+# shape of ny
+invert
+https://github.com/ebrelsford/Leaflet.snogylop
+but wait
+http://www.mapshaper.org/
