@@ -183,6 +183,7 @@ better_icons = new BetterIconFactory({
 App = (function() {
   function App(options) {
     this.options = options;
+    this.setup_nav = __bind(this.setup_nav, this);
     this.got_location = __bind(this.got_location, this);
     this.get_location = __bind(this.get_location, this);
     this.load_data = __bind(this.load_data, this);
@@ -316,7 +317,6 @@ App = (function() {
     if ("geolocation" in navigator) {
       return navigator.geolocation.getCurrentPosition((function(_this) {
         return function(position) {
-          console.log(position);
           return _this.got_location([position.coords.latitude, position.coords.longitude]);
         };
       })(this));
@@ -329,10 +329,26 @@ App = (function() {
     var ll, meters;
     ll = L.latLng(pos[0], pos[1]);
     meters = ll.distanceTo(this.options.center);
+    console.log(meters);
     if (meters < 30000) {
-      this.map.setView(pos, 14);
+      return this.map.setView(pos, 15);
+    } else {
+      return $("nav").append("<p>Sorry, you don't seem to be in new york city</p>");
     }
-    return console.log(meters);
+  };
+
+  App.prototype.setup_nav = function() {
+    $("nav div.about").hide();
+    return $((function(_this) {
+      return function() {
+        $("nav a.about").on("click", function() {
+          return $("nav div.about").slideToggle();
+        });
+        return $("nav a.goto").on("click", function() {
+          return _this.get_location();
+        });
+      };
+    })(this));
   };
 
   return App;
@@ -351,3 +367,5 @@ app = new App({
 app.setup_map();
 
 app.load_data();
+
+app.setup_nav();

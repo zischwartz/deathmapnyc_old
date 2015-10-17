@@ -59,7 +59,7 @@
 	 
 	 nav {
 	 	/*background-color: #191919;*/
-	 	background-color: rgba(50, 50, 50, 0.7);
+	 	background-color: rgba(50, 50, 50, 0.75);
 	 	display: block;
 	 	position: absolute;
 	 	z-index: 100;
@@ -98,13 +98,18 @@
  		width: 100%; 
 	 	}
 
-	 	div.about {
-	 		max-width: 400px;
-	 		padding: 60px;
-	 		color: #F5F0F0;
-	 		line-height: 1.5em;
-	 		display: none;
-	 	}
+ 	div.about {
+ 		max-width: 400px;
+ 		padding: 15px;
+ 		color: #F5F0F0;
+ 		line-height: 1.5em;
+ 	}
+
+ 	/* message if too far on goto */
+ 	nav p {
+ 		color: #F5F0F0;
+ 		padding: 5px 20px;
+ 	}
 
 	 </style>
 </head>
@@ -127,6 +132,7 @@
 </nav>
  <div id="map"></div>
 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.js"></script>
  <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
  <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.js"></script>

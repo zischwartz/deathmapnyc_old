@@ -1,6 +1,3 @@
-
-
-
 class BetterIconFactory 
   constructor: (@types)->
   # this just populates objects for icon options that were passed to the constructor
@@ -178,19 +175,24 @@ class App
   get_location: =>
     if "geolocation" of navigator
       navigator.geolocation.getCurrentPosition (position)=>
-        console.log position
         @got_location([position.coords.latitude, position.coords.longitude])
-        # map.setView([position.coords.latitude, position.coords.longitude])
     else alert("Geolocation not supported by your browser")
 
   got_location: (pos) =>
     ll = L.latLng(pos[0], pos[1])
-    # start_ll = new L.LatLng(start[0], start[1])
     meters = ll.distanceTo(@options.center)
-
-    if meters < 30000
-      @map.setView pos, 14
     console.log meters
+    if meters < 30000
+      @map.setView pos, 15
+    else
+      $("nav").append "<p>Sorry, you don't seem to be in new york city</p>"
+
+  setup_nav: =>
+    $("nav div.about").hide()
+    $ =>
+      $("nav a.about").on "click", -> $("nav div.about").slideToggle()
+      $("nav a.goto").on "click", => @get_location()
+
 
 
 
@@ -205,6 +207,5 @@ app = new App
 
 app.setup_map()
 app.load_data()
-
-
+app.setup_nav()
 
