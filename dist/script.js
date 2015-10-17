@@ -79,30 +79,8 @@
 
 })();
 
-var BetterIconFactory, better_icons, bridge, debug, get_location, gotLocation, last_zoom, map, marker_opacity, markers, months, oReq, reqListener, toner_layer, url,
+var App, BetterIconFactory, app, better_icons,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-get_location = function() {
-  if ("geolocation" in navigator) {
-    return navigator.geolocation.getCurrentPosition(function(position) {
-      console.log(position);
-      return gotLocation([position.coords.latitude, position.coords.longitude]);
-    });
-  } else {
-    return alert("Geolocation not supported by your browser");
-  }
-};
-
-gotLocation = function(pos) {
-  var ll, meters, start_ll;
-  ll = L.latLng(pos[0], pos[1]);
-  start_ll = new L.LatLng(start[0], start[1]);
-  meters = ll.distanceTo(start);
-  if (meters < 30000) {
-    map.setView(pos, 14);
-  }
-  return console.log(meters);
-};
 
 BetterIconFactory = (function() {
   function BetterIconFactory(types) {
@@ -146,7 +124,7 @@ BetterIconFactory = (function() {
 })();
 
 better_icons = new BetterIconFactory({
-  sizes: ["medium", "small", "tiny", "ity"],
+  sizes: ["medium", "small", "tiny", "ity", "minute"],
   skull: {
     iconSize: function(size, ratio) {
       return [80 / ratio, 106 / ratio];
@@ -202,164 +180,174 @@ better_icons = new BetterIconFactory({
   }
 });
 
-debug = false;
-
-bridge = new L.LatLng(40.714736512395284, -73.97661209106445);
-
-toner_layer = new L.StamenTileLayer("toner-lite", {
-  attribution: "Map tiles by <a href=\"http://stamen.com\">Stamen Design</a>, under <a href=\"http://creativecommons.org/licenses/by/3.0\">CC BY 3.0</a>. Data by <a href=\"http://openstreetmap.org\">OpenStreetMap</a>, under <a href=\"http://www.openstreetmap.org/copyright\">ODbL</a>."
-});
-
-markers = [];
-
-marker_opacity = 1;
-
-last_zoom = 13;
-
-map = new L.Map("map", {
-  center: bridge,
-  zoom: last_zoom,
-  layers: [toner_layer]
-});
-
-toner_layer.setOpacity(0.5);
-
-map.on('zoomend', function() {
-  var current_zoom, mark, _i, _j, _k, _l, _len, _len1, _len2, _len3;
-  current_zoom = map.getZoom();
-  console.log(current_zoom, last_zoom);
-  if (current_zoom === 12 && last_zoom === 13) {
-    for (_i = 0, _len = markers.length; _i < _len; _i++) {
-      mark = markers[_i];
-      if (mark["homicide"]) {
-        mark.setIcon(better_icons.make("glock_skull", "ity", true));
-      } else {
-        mark.setIcon(better_icons.make("skull", "ity", true));
-      }
-    }
+App = (function() {
+  function App(options) {
+    this.options = options;
+    this.got_location = __bind(this.got_location, this);
+    this.get_location = __bind(this.get_location, this);
+    this.load_data = __bind(this.load_data, this);
+    this.setup_map = __bind(this.setup_map, this);
+    this.markers = [];
   }
-  if (current_zoom === 13 && last_zoom === 14 || current_zoom === 13 && last_zoom === 12) {
-    console.log('def');
-    for (_j = 0, _len1 = markers.length; _j < _len1; _j++) {
-      mark = markers[_j];
-      if (mark["homicide"]) {
-        mark.setIcon(better_icons.make("glock_skull", "tiny", true));
-      } else {
-        mark.setIcon(better_icons.make("skull", "tiny", true));
-      }
-    }
-  }
-  if (current_zoom === 14 && last_zoom === 13 || current_zoom === 14 && last_zoom === 15) {
-    for (_k = 0, _len2 = markers.length; _k < _len2; _k++) {
-      mark = markers[_k];
-      if (mark["homicide"]) {
-        mark.setIcon(better_icons.make("glock_skull", "small", true));
-      } else {
-        mark.setIcon(better_icons.make("skull", "small", true));
-      }
-    }
-  }
-  if (current_zoom === 15 && last_zoom === 14) {
-    for (_l = 0, _len3 = markers.length; _l < _len3; _l++) {
-      mark = markers[_l];
-      if (mark["homicide"]) {
-        mark.setIcon(better_icons.make("glock_skull", "medium", true));
-      } else {
-        mark.setIcon(better_icons.make("skull", "medium", true));
-      }
-    }
-  }
-  return last_zoom = current_zoom;
-});
 
-reqListener = function() {
-  var data, i, mark, x, _i, _len, _results;
-  data = JSON.parse(this.responseText);
-  _results = [];
-  for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
-    x = data[i];
-    mark = L.marker([x.lat, x.long], {
-      icon: better_icons.make("skull", "tiny", true),
-      clickable: false,
-      opacity: marker_opacity,
-      title: "hello"
+  App.prototype.setup_map = function() {
+    var toner_layer;
+    toner_layer = new L.StamenTileLayer("toner-lite", {
+      attribution: "Map tiles by <a href=\"http://stamen.com\">Stamen Design</a>, under <a href=\"http://creativecommons.org/licenses/by/3.0\">CC BY 3.0</a>. Data by <a href=\"http://openstreetmap.org\">OpenStreetMap</a>, under <a href=\"http://www.openstreetmap.org/copyright\">ODbL</a>."
     });
-    mark.addTo(map);
-    _results.push(markers.push(mark));
-  }
-  return _results;
-};
-
-url = "motor_related_deaths.json";
-
-oReq = new XMLHttpRequest();
-
-oReq.addEventListener('load', reqListener);
-
-oReq.open("get", url, true);
-
-if (!debug) {
-  oReq.send();
-}
-
-months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-reqListener = function() {
-  var data, i, mark, title, x, _i, _len, _results;
-  data = JSON.parse(this.responseText);
-  _results = [];
-  for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
-    x = data[i];
-    title = months[x["MO"]] + ' ' + x["YR"];
-    mark = L.marker([x.latitude, x.longitude], {
-      icon: better_icons.make("glock_skull", "tiny", true),
-      riseOnHover: true,
-      clickable: false,
-      opacity: marker_opacity,
-      title: title
+    this.map = new L.Map("map", {
+      center: this.options.center,
+      zoom: this.options.zoom,
+      layers: [toner_layer],
+      maxZoom: this.options.maxZoom,
+      minZoom: this.options.minZoom
     });
-    mark.addTo(map);
-    mark["homicide"] = true;
-    _results.push(markers.push(mark));
-  }
-  return _results;
-};
-
-url = "murders.json";
-
-oReq = new XMLHttpRequest();
-
-oReq.addEventListener('load', reqListener);
-
-oReq.open("get", url, true);
-
-if (!debug) {
-  oReq.send();
-}
-
-reqListener = function() {
-  var data, style;
-  data = JSON.parse(this.responseText);
-  console.log(data);
-  style = {
-    "color": "white",
-    "weight": 0,
-    "fillOpacity": 0.9
+    this.zoom_to_marker_size = d3.scale.quantize().domain([17, 10]).range(this.options.factory.types.sizes);
+    toner_layer.setOpacity(0.5);
+    this.map.on('zoomstart', (function(_this) {
+      return function() {
+        return console.log("zoom start!");
+      };
+    })(this));
+    return this.map.on('zoomend', (function(_this) {
+      return function() {
+        var current_zoom, mark, size, _i, _len, _ref, _results;
+        current_zoom = _this.map.getZoom();
+        size = _this.zoom_to_marker_size(current_zoom);
+        console.log(current_zoom, size);
+        _ref = _this.markers;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          mark = _ref[_i];
+          if (mark["homicide"]) {
+            _results.push(mark.setIcon(_this.options.factory.make("glock_skull", size, true)));
+          } else {
+            _results.push(mark.setIcon(_this.options.factory.make("skull", size, true)));
+          }
+        }
+        return _results;
+      };
+    })(this));
   };
-  return L.geoJson(data, {
-    invert: true,
-    style: style
-  }).addTo(map);
-};
 
-url = "nyc.json";
+  App.prototype.load_data = function() {
+    var debug, icons, map, marker_opacity, markers, months, oReq, reqListener, size, url;
+    map = this.map;
+    debug = this.options.debug;
+    markers = this.markers;
+    marker_opacity = this.options.marker_opacity;
+    size = this.zoom_to_marker_size(this.options.zoom);
+    icons = this.options.factory;
+    reqListener = function() {
+      var data, i, mark, x, _i, _len, _results;
+      data = JSON.parse(this.responseText);
+      _results = [];
+      for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
+        x = data[i];
+        mark = L.marker([x.lat, x.long], {
+          icon: icons.make("skull", size, true),
+          clickable: false,
+          opacity: marker_opacity,
+          title: "hello"
+        });
+        mark.addTo(map);
+        _results.push(markers.push(mark));
+      }
+      return _results;
+    };
+    url = "motor_related_deaths.json";
+    oReq = new XMLHttpRequest();
+    oReq.addEventListener('load', reqListener);
+    oReq.open("get", url, true);
+    if (!debug) {
+      oReq.send();
+    }
+    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    reqListener = function() {
+      var data, i, mark, title, x, _i, _len, _results;
+      data = JSON.parse(this.responseText);
+      _results = [];
+      for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
+        x = data[i];
+        title = months[x["MO"]] + ' ' + x["YR"];
+        mark = L.marker([x.latitude, x.longitude], {
+          icon: icons.make("glock_skull", size, true),
+          riseOnHover: true,
+          clickable: false,
+          opacity: marker_opacity,
+          title: title
+        });
+        mark.addTo(map);
+        mark["homicide"] = true;
+        _results.push(markers.push(mark));
+      }
+      return _results;
+    };
+    url = "murders.json";
+    oReq = new XMLHttpRequest();
+    oReq.addEventListener('load', reqListener);
+    oReq.open("get", url, true);
+    if (!debug) {
+      oReq.send();
+    }
+    reqListener = function() {
+      var data, style;
+      data = JSON.parse(this.responseText);
+      style = {
+        "color": "white",
+        "weight": 0,
+        "fillOpacity": 0.9
+      };
+      return L.geoJson(data, {
+        invert: true,
+        style: style
+      }).addTo(map);
+    };
+    url = "nyc.json";
+    oReq = new XMLHttpRequest();
+    oReq.addEventListener('load', reqListener);
+    oReq.open("get", url, true);
+    if (!debug) {
+      return oReq.send();
+    }
+  };
 
-oReq = new XMLHttpRequest();
+  App.prototype.get_location = function() {
+    if ("geolocation" in navigator) {
+      return navigator.geolocation.getCurrentPosition((function(_this) {
+        return function(position) {
+          console.log(position);
+          return _this.got_location([position.coords.latitude, position.coords.longitude]);
+        };
+      })(this));
+    } else {
+      return alert("Geolocation not supported by your browser");
+    }
+  };
 
-oReq.addEventListener('load', reqListener);
+  App.prototype.got_location = function(pos) {
+    var ll, meters;
+    ll = L.latLng(pos[0], pos[1]);
+    meters = ll.distanceTo(this.options.center);
+    if (meters < 30000) {
+      this.map.setView(pos, 14);
+    }
+    return console.log(meters);
+  };
 
-oReq.open("get", url, true);
+  return App;
 
-if (!debug) {
-  oReq.send();
-}
+})();
+
+app = new App({
+  center: new L.LatLng(40.714736512395284, -73.97661209106445),
+  zoom: 12,
+  maxZoom: 17,
+  minZoom: 10,
+  factory: better_icons,
+  marker_opacity: 1
+});
+
+app.setup_map();
+
+app.load_data();
