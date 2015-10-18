@@ -87,6 +87,7 @@
 	 li:first-child a{
 	 	color: #FDFDFD !important;
 	 	font-size: 22px;
+	 	background: none !important;
 	 }
 	 li a:hover {
 	 	text-decoration: underline;
@@ -105,10 +106,20 @@
  		line-height: 1.5em;
  	}
 
- 	/* message if too far on goto */
  	nav p {
  		color: #F5F0F0;
  		padding: 5px 20px;
+ 	}
+
+ 	nav a{
+ 		color: #F5F0F0;
+ 		background-color:  rgba(0,0,0, 0.4);
+ 		padding: 3px;
+ 		transition: all 0.5s;
+ 	}
+
+ 	nav a:hover{
+ 		background-color:  rgba(0,0,0, 1);
  	}
 
 	 </style>
@@ -121,13 +132,9 @@
     <li><a class="goto" href="#">go to location</a></li>
   </ul>
   <div class="about">
-  		Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-  		tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-  		quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-  		consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-  		cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-  		proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-  		proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  	<p>This is a map of deaths that occurred in New York City in the past few years. It only includes <a href="https://thomaslevine.com/!/nyc-crime-map/">homicides</a> and <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95">motor vehicle related</a> deaths because that seems to be the data available. </p>
+  	<p>Because so many deaths occur at the same locations, a few pixels of noise is applied to the locations so they can be seen.</p>
+  	<!-- <p><a href="http://zachschwartz.com/deathmapnyc">Read more here.</a></p> -->
   </div>
 </nav>
  <div id="map"></div>

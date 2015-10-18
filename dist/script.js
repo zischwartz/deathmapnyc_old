@@ -221,9 +221,9 @@ App = (function() {
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           mark = _ref[_i];
           if (mark["homicide"]) {
-            _results.push(mark.setIcon(_this.options.factory.make("glock_skull", size, true)));
+            _results.push(mark.setIcon(_this.options.factory.make("glock_skull", size, _this.options.jitter)));
           } else {
-            _results.push(mark.setIcon(_this.options.factory.make("skull", size, true)));
+            _results.push(mark.setIcon(_this.options.factory.make("skull", size, _this.options.jitter)));
           }
         }
         return _results;
@@ -232,13 +232,14 @@ App = (function() {
   };
 
   App.prototype.load_data = function() {
-    var debug, icons, map, marker_opacity, markers, months, oReq, reqListener, size, url;
+    var debug, icons, jitter_bool, map, marker_opacity, markers, months, oReq, reqListener, size, url;
     map = this.map;
     debug = this.options.debug;
     markers = this.markers;
     marker_opacity = this.options.marker_opacity;
-    size = this.zoom_to_marker_size(this.options.zoom);
     icons = this.options.factory;
+    jitter_bool = this.options.jitter;
+    size = this.zoom_to_marker_size(this.options.zoom);
     reqListener = function() {
       var data, i, mark, x, _i, _len, _results;
       data = JSON.parse(this.responseText);
@@ -246,7 +247,7 @@ App = (function() {
       for (i = _i = 0, _len = data.length; _i < _len; i = ++_i) {
         x = data[i];
         mark = L.marker([x.lat, x.long], {
-          icon: icons.make("skull", size, true),
+          icon: icons.make("skull", size, jitter_bool),
           clickable: false,
           opacity: marker_opacity,
           title: "hello"
@@ -272,7 +273,7 @@ App = (function() {
         x = data[i];
         title = months[x["MO"]] + ' ' + x["YR"];
         mark = L.marker([x.latitude, x.longitude], {
-          icon: icons.make("glock_skull", size, true),
+          icon: icons.make("glock_skull", size, jitter_bool),
           riseOnHover: true,
           clickable: false,
           opacity: marker_opacity,
@@ -331,7 +332,13 @@ App = (function() {
     meters = ll.distanceTo(this.options.center);
     console.log(meters);
     if (meters < 30000) {
-      return this.map.setView(pos, 15);
+      this.map.setView(pos, 15);
+      if (this.circle) {
+        return this.circle.setLatLng(ll);
+      } else {
+        this.circle = new L.CircleMarker(ll);
+        return this.circle.addTo(this.map);
+      }
     } else {
       return $("nav").append("<p>Sorry, you don't seem to be in new york city</p>");
     }
@@ -361,7 +368,8 @@ app = new App({
   maxZoom: 17,
   minZoom: 10,
   factory: better_icons,
-  marker_opacity: 1
+  marker_opacity: 1,
+  jitter: true
 });
 
 app.setup_map();

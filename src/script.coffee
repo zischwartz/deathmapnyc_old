@@ -94,9 +94,9 @@ class App
       console.log current_zoom, size
       for mark in @markers
           if mark["homicide"]
-            mark.setIcon @options.factory.make "glock_skull", size, true
+            mark.setIcon @options.factory.make "glock_skull", size, @options.jitter
           else
-            mark.setIcon @options.factory.make "skull", size, true
+            mark.setIcon @options.factory.make "skull", size, @options.jitter
 
 
   load_data: =>
@@ -105,13 +105,18 @@ class App
     debug = @options.debug
     markers = @markers
     marker_opacity = @options.marker_opacity
-    size = @zoom_to_marker_size(@options.zoom)
+    
     icons = @options.factory
+    jitter_bool = @options.jitter
+    
+    # scale the default zoom to our size string
+    size = @zoom_to_marker_size(@options.zoom)
+
     # Lets request some data!
     reqListener =()->
       data = JSON.parse this.responseText
       for x, i in data
-        mark = L.marker([x.lat, x.long], {icon: icons.make("skull", size, true), clickable: false, opacity: marker_opacity, title: "hello"})
+        mark = L.marker([x.lat, x.long], {icon: icons.make("skull", size, jitter_bool), clickable: false, opacity: marker_opacity, title: "hello"})
         mark.addTo(map)
         markers.push mark
 
@@ -134,7 +139,7 @@ class App
       for x, i in data
         title = months[ x["MO"] ]+ ' '+ x["YR"]
         # make the markers, add them to map
-        mark = L.marker([x.latitude, x.longitude], {icon: icons.make("glock_skull",size, true), riseOnHover:true, clickable: false, opacity: marker_opacity, title: title})
+        mark = L.marker([x.latitude, x.longitude], {icon: icons.make("glock_skull",size, jitter_bool), riseOnHover:true, clickable: false, opacity: marker_opacity, title: title})
 
         mark.addTo(map)
         mark["homicide"] = true
@@ -184,6 +189,12 @@ class App
     console.log meters
     if meters < 30000
       @map.setView pos, 15
+      if @circle
+        @circle.setLatLng ll
+      else
+        @circle = new L.CircleMarker ll
+        @circle.addTo(@map)
+
     else
       $("nav").append "<p>Sorry, you don't seem to be in new york city</p>"
 
@@ -203,6 +214,7 @@ app = new App
   minZoom: 10
   factory: better_icons
   marker_opacity: 1
+  jitter: true
 
 
 app.setup_map()
