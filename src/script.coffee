@@ -86,12 +86,12 @@ class App
     toner_layer.setOpacity(0.5)
 
     @map.on 'zoomstart', =>
-      console.log "zoom start!"
+      # console.log "zoom start!"
 
     @map.on 'zoomend', =>
       current_zoom = @map.getZoom()
       size = @zoom_to_marker_size current_zoom
-      console.log current_zoom, size
+      # console.log current_zoom, size
       for mark in @markers
           if mark["homicide"]
             mark.setIcon @options.factory.make "glock_skull", size, @options.jitter
@@ -116,11 +116,12 @@ class App
     reqListener =()->
       data = JSON.parse this.responseText
       for x, i in data
-        mark = L.marker([x.lat, x.long], {icon: icons.make("skull", size, jitter_bool), clickable: false, opacity: marker_opacity, title: "hello"})
+        title = x['d']
+        mark = L.marker([x.lat, x.long], {icon: icons.make("skull", size, jitter_bool), clickable: false, opacity: marker_opacity, title: title})
         mark.addTo(map)
         markers.push mark
 
-    url = "motor_related_deaths.json"
+    url = "veh.json"
 
     oReq = new XMLHttpRequest()
     oReq.addEventListener('load', reqListener)
@@ -139,7 +140,7 @@ class App
       for x, i in data
         title = months[ x["MO"] ]+ ' '+ x["YR"]
         # make the markers, add them to map
-        mark = L.marker([x.latitude, x.longitude], {icon: icons.make("glock_skull",size, jitter_bool), riseOnHover:true, clickable: false, opacity: marker_opacity, title: title})
+        mark = L.marker([x.lat, x.long], {icon: icons.make("glock_skull",size, jitter_bool), clickable: false, opacity: marker_opacity, title: title})
 
         mark.addTo(map)
         mark["homicide"] = true

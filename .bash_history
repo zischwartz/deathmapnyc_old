@@ -63,3 +63,12 @@ ipython
 find dada.pink/nyc-crime-map-data/ -iname "*.csv"
 ipython
 ipython
+cd /root
+cd root
+cd /root
+ls
+import pandas
+ipython 
+ls
+cd data_processing/
+ipython 
