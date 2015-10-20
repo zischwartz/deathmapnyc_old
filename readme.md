@@ -51,3 +51,7 @@ invert
 https://github.com/ebrelsford/Leaflet.snogylop
 but wait
 http://www.mapshaper.org/
+
+
+
+docker run -it -v $PWD:/root ipython/scipystack /bin/bash
