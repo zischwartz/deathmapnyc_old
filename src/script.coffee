@@ -86,9 +86,10 @@ class App
     toner_layer.setOpacity(0.5)
 
     @map.on 'zoomstart', =>
-      # console.log "zoom start!"
+      console.log "zoom start!"
 
     @map.on 'zoomend', =>
+      console.log 'end !!!'
       current_zoom = @map.getZoom()
       size = @zoom_to_marker_size current_zoom
       # console.log current_zoom, size

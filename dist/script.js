@@ -206,11 +206,14 @@ App = (function() {
     this.zoom_to_marker_size = d3.scale.quantize().domain([17, 10]).range(this.options.factory.types.sizes);
     toner_layer.setOpacity(0.5);
     this.map.on('zoomstart', (function(_this) {
-      return function() {};
+      return function() {
+        return console.log("zoom start!");
+      };
     })(this));
     return this.map.on('zoomend', (function(_this) {
       return function() {
         var current_zoom, mark, size, _i, _len, _ref, _results;
+        console.log('end !!!');
         current_zoom = _this.map.getZoom();
         size = _this.zoom_to_marker_size(current_zoom);
         _ref = _this.markers;
