@@ -144,21 +144,27 @@
     }
   }
 
-  #goto_mobile_button {
-    position: absolute;
-    display: block;
-    bottom: 100px;
-    right: 0px;
-    z-index: 100;
-    background-color: white;
-    cursor: pointer;
-  }
 
-
-
-@media screen and (min-width: 800px) {
   #goto_mobile_button {
     display: none;
   }
 
+@media only screen and (max-device-width: 800px) and (-webkit-device-pixel-ratio: 2) {
+
+    #goto_mobile_button {
+      position: absolute;
+      display: block;
+      bottom: 100px;
+      right: 0px;
+      z-index: 100;
+      background-color: white;
+      cursor: pointer;
+    }
+
 }
+
+// @media screen and (min-width: 800px) {
+  // #goto_mobile_button {
+  //   display: none;
+  // }
+// }
