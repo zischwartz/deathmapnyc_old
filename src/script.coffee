@@ -67,6 +67,7 @@ class App
   constructor: (@options)->
     @markers = []
 
+
   setup_map: =>
 
     toner_layer = new L.StamenTileLayer "toner-lite", 
@@ -86,10 +87,11 @@ class App
     toner_layer.setOpacity(0.5)
 
     @map.on 'zoomstart', =>
-      console.log "zoom start!"
+      $("#overlay").show()
+      # console.log "zoom start!"
 
     @map.on 'zoomend', =>
-      console.log 'end !!!'
+      # console.log 'end !!!'
       current_zoom = @map.getZoom()
       size = @zoom_to_marker_size current_zoom
       # console.log current_zoom, size
@@ -98,7 +100,7 @@ class App
             mark.setIcon @options.factory.make "glock_skull", size, @options.jitter
           else
             mark.setIcon @options.factory.make "skull", size, @options.jitter
-
+      $("#overlay").hide()
 
   load_data: =>
     # so lazy, just do this
@@ -204,22 +206,24 @@ class App
     $("nav div.about").hide()
     $ =>
       $("nav a.about").on "click", -> $("nav div.about").slideToggle()
-      $("nav a.goto").on "click", => @get_location()
+      $("nav a.goto, #goto_mobile_button").on "click", => 
+        @get_location()
+        $("#goto_mobile_button").hide()
 
 
+$ ->
+  app = new App
+    center: new L.LatLng 40.714736512395284, -73.97661209106445
+    zoom: 12
+    maxZoom: 17
+    minZoom: 10
+    factory: better_icons
+    marker_opacity: 1
+    jitter: true
+    # debug: true
 
 
-app = new App
-  center: new L.LatLng 40.714736512395284, -73.97661209106445
-  zoom: 12
-  maxZoom: 17
-  minZoom: 10
-  factory: better_icons
-  marker_opacity: 1
-  jitter: true
-
-
-app.setup_map()
-app.load_data()
-app.setup_nav()
-
+  app.setup_map()
+  app.load_data()
+  app.setup_nav()
+  $("#overlay").hide()

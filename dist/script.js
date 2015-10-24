@@ -79,7 +79,7 @@
 
 })();
 
-var App, BetterIconFactory, app, better_icons,
+var App, BetterIconFactory, better_icons,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 BetterIconFactory = (function() {
@@ -207,26 +207,24 @@ App = (function() {
     toner_layer.setOpacity(0.5);
     this.map.on('zoomstart', (function(_this) {
       return function() {
-        return console.log("zoom start!");
+        return $("#overlay").show();
       };
     })(this));
     return this.map.on('zoomend', (function(_this) {
       return function() {
-        var current_zoom, mark, size, _i, _len, _ref, _results;
-        console.log('end !!!');
+        var current_zoom, mark, size, _i, _len, _ref;
         current_zoom = _this.map.getZoom();
         size = _this.zoom_to_marker_size(current_zoom);
         _ref = _this.markers;
-        _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           mark = _ref[_i];
           if (mark["homicide"]) {
-            _results.push(mark.setIcon(_this.options.factory.make("glock_skull", size, _this.options.jitter)));
+            mark.setIcon(_this.options.factory.make("glock_skull", size, _this.options.jitter));
           } else {
-            _results.push(mark.setIcon(_this.options.factory.make("skull", size, _this.options.jitter)));
+            mark.setIcon(_this.options.factory.make("skull", size, _this.options.jitter));
           }
         }
-        return _results;
+        return $("#overlay").hide();
       };
     })(this));
   };
@@ -351,8 +349,9 @@ App = (function() {
         $("nav a.about").on("click", function() {
           return $("nav div.about").slideToggle();
         });
-        return $("nav a.goto").on("click", function() {
-          return _this.get_location();
+        return $("nav a.goto, #goto_mobile_button").on("click", function() {
+          _this.get_location();
+          return $("#goto_mobile_button").hide();
         });
       };
     })(this));
@@ -362,18 +361,19 @@ App = (function() {
 
 })();
 
-app = new App({
-  center: new L.LatLng(40.714736512395284, -73.97661209106445),
-  zoom: 12,
-  maxZoom: 17,
-  minZoom: 10,
-  factory: better_icons,
-  marker_opacity: 1,
-  jitter: true
+$(function() {
+  var app;
+  app = new App({
+    center: new L.LatLng(40.714736512395284, -73.97661209106445),
+    zoom: 12,
+    maxZoom: 17,
+    minZoom: 10,
+    factory: better_icons,
+    marker_opacity: 1,
+    jitter: true
+  });
+  app.setup_map();
+  app.load_data();
+  app.setup_nav();
+  return $("#overlay").hide();
 });
-
-app.setup_map();
-
-app.load_data();
-
-app.setup_nav();

@@ -3,129 +3,9 @@
 <head>
 	<title>Death Map</title>
 	 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
-	<link href='https://fonts.googleapis.com/css?family=Slabo+27px' rel='stylesheet' type='text/css'>
-	 <style>
+	 <link href='https://fonts.googleapis.com/css?family=Slabo+27px' rel='stylesheet' type='text/css'>
+	 <link href='style.css' rel='stylesheet' type='text/css'>
 
-	 img {
-	 	outline: none;
-	 }
-
-	 html, body, div, span, applet, object, iframe,
-	 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-	 a, abbr, acronym, address, big, cite, code,
-	 del, dfn, em, img, ins, kbd, q, s, samp,
-	 small, strike, strong, sub, sup, tt, var,
-	 b, u, i, center,
-	 dl, dt, dd, ol, ul, li,
-	 fieldset, form, label, legend,
-	 table, caption, tbody, tfoot, thead, tr, th, td,
-	 article, aside, canvas, details, embed, 
-	 figure, figcaption, footer, header, hgroup, 
-	 menu, nav, output, ruby, section, summary,
-	 time, mark, audio, video {
-	 	margin: 0;
-	 	padding: 0;
-	 	border: 0;
-	 	font-size: 100%;
-	 	font: inherit;
-	 	vertical-align: baseline;
-	 }
-	 /* HTML5 display-role reset for older browsers */
-	 article, aside, details, figcaption, figure, 
-	 footer, header, hgroup, menu, nav, section {
-	 	display: block;
-	 }
-	 body {
-	 	line-height: 1;
-	 }
-	 ol, ul {
-	 	list-style: none;
-	 }
-	 blockquote, q {
-	 	quotes: none;
-	 }
-	 blockquote:before, blockquote:after,
-	 q:before, q:after {
-	 	content: '';
-	 	content: none;
-	 }
-	 table {
-	 	border-collapse: collapse;
-	 	border-spacing: 0;
-	 }
-	 body {
-	 	font-family: 'Slabo 27px', serif;
-	 }
-	 
-	 nav {
-	 	/*background-color: #191919;*/
-	 	background-color: rgba(50, 50, 50, 0.75);
-	 	display: block;
-	 	position: absolute;
-	 	z-index: 100;
-	 	right: 0;
-	 }
-
-	 li {
-	 	/*float: right;*/
-	 	display: inline-block;
-	 	padding: 15px 10px;
-	 }
-
-	/*.leaflet-top .leaflet-control {*/
-	.leaflet-top.leaflet-left {
-		background-color: rgba(50, 50, 50, 0.7);
-		padding: 10px;
-		margin-top: -10px;
-	}
-
-	.vertical-text { transform: rotate(90deg); transform-origin: left top 0; }.
-	
-	 li a {
-	 	font-size: 15px;
-	 	padding: 10px;
-	 	text-decoration: none;
-	 	color: #F5F0F0 !important;
-	 }
-	 li:first-child a{
-	 	color: #FDFDFD !important;
-	 	font-size: 22px;
-	 	background: none !important;
-	 }
-	 li a:hover {
-	 	text-decoration: underline;
-	 }
-
-	 #map { 
- 		height: 100%;
- 		position: absolute;
- 		width: 100%; 
-	 	}
-
- 	div.about {
- 		max-width: 400px;
- 		padding: 15px;
- 		color: #F5F0F0;
- 		line-height: 1.5em;
- 	}
-
- 	nav p {
- 		color: #F5F0F0;
- 		padding: 5px 0px;
- 	}
-
- 	nav a{
- 		color: #F5F0F0;
- 		background-color:  rgba(0,0,0, 0.4);
- 		padding: 3px;
- 		transition: all 0.5s;
- 	}
-
- 	nav a:hover{
- 		background-color:  rgba(0,0,0, 1);
- 	}
-
-	 </style>
 </head>
 <body>
 <nav>
@@ -135,12 +15,22 @@
     <li><a class="goto" href="#">go to location</a></li>
   </ul>
   <div class="about">
-  	<p>This is an incomplete map of deaths that occurred in New York City in roughly the past two years. It only includes <a href="https://thomaslevine.com/!/nyc-crime-map/">homicides</a> and <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95">motor vehicle related</a> deaths because that seems to be the data available.</p>
+  	<p>This is an incomplete map of deaths that occurred in New York City over roughly the past two years. It only includes <a href="https://thomaslevine.com/!/nyc-crime-map/">homicides</a> and <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95">motor vehicle related</a> deaths because that seems to be the data available.</p>
   	<p>Because so many deaths occur at the same locations, a few pixels of noise is applied to the locations so they can be seen.</p>
   	<!-- <p><a href="http://zachschwartz.com/deathmapnyc">Read more here.</a></p> -->
   </div>
 </nav>
- <div id="map"></div>
+<div id="overlay">
+	<div>
+		<span>Loading...</span>
+		<img src="/img/gears.png" />
+	</div>
+</div>
+<div id="map"></div>
+
+<div id="goto_mobile_button"> <img src="/img/pointer.png">
+<p>Go to Location</p>
+</div>
 
  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.js"></script>
  <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>

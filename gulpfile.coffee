@@ -21,7 +21,7 @@ onError = (err) ->
 gulpLoadPlugins = require 'gulp-load-plugins'
 plugins = gulpLoadPlugins()
 
-style_glob = ["css/*.less"]
+style_glob = ["src/*.less"]
 
 gulp.task "less", ->
   gulp.src(style_glob).pipe(plugins.watch())
