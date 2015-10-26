@@ -125,21 +125,19 @@
     background-color:  rgba(0,0,0, 0.6);
     z-index: 1;
     div {
-      width: 160px;
-      height: 160px;
-      position: absolute;
-      top:0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      margin: auto;
+      margin-top: 10%;
+      width: 200px;
+      margin: 10% auto 0 auto;
+      padding: 30px;
       text-align: center;
 
       span {
         color: #F5F0F0;
+        background-color:  rgba(0,0,0, 0.4);
         padding: 10px;
-        font-size: 1.5em;
+        font-size: 1.8em;
         display: block;
+        margin-bottom: 30px;
       }
     }
   }
@@ -150,7 +148,7 @@
   }
 
 // @media only screen and (max-width: 800px) and (-webkit-device-pixel-ratio: 2) {
-@media only screen and (min-device-width: 800px){
+@media only screen and (max-device-width: 736px){
 
     #goto_mobile_button {
       position: absolute;
@@ -160,6 +158,12 @@
       z-index: 100;
       background-color: white;
       cursor: pointer;
+      border: #403F3F 2px solid;
+      border-right: none;
+      font-size: 2em;
+      text-align: center;
+      padding: 10px;
+      span { padding: 5px;}
     }
 
 }

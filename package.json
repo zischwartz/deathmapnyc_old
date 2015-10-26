@@ -1,8 +1,8 @@
 {
-  "name": "video-ed",
+  "name": "deathmapnyc",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist/script.js",
   "scripts": {
     "test": "./node_modules/jasmine-node/bin/jasmine-node --coffee --autoTest  spec/ --watchFolders src/ --noStackTrace --verbose --captureExceptions",
     "stest": "./node_modules/jasmine-node/bin/jasmine-node --coffee --autoTest  spec/ --watchFolders src/ --verbose --captureExceptions"
@@ -27,7 +27,12 @@
     "jasmine-node": "^1.14.5",
     "minimist": "^1.1.0",
     "nunjucks": "^1.1.0",
-    "underscore.string": "~2.3.3"
+    "underscore.string": "~2.3.3",
+    "async": "~0.8.0",
+    "aws-sdk": "~2.0.0-rc.15",
+    "gulp-awspublish": "0.0.14",
+    "lodash": "~2.4.1",
+    "uuid": "~1.4.1"
   },
   "dependencies": {
     "backbone": "^1.2.2",

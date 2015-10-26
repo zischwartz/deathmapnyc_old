@@ -193,33 +193,39 @@ nav a:hover {
   z-index: 1;
 }
 #overlay div {
-  width: 160px;
-  height: 160px;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
+  margin-top: 10%;
+  width: 200px;
+  margin: 10% auto 0 auto;
+  padding: 30px;
   text-align: center;
 }
 #overlay div span {
   color: #F5F0F0;
+  background-color: rgba(0, 0, 0, 0.4);
   padding: 10px;
-  font-size: 1.5em;
+  font-size: 1.8em;
   display: block;
+  margin-bottom: 30px;
 }
 #goto_mobile_button {
-  position: absolute;
-  display: block;
-  bottom: 100px;
-  right: 0px;
-  z-index: 100;
-  background-color: white;
-  cursor: pointer;
+  display: none;
 }
-@media screen and (min-width: 600px) {
+@media only screen and (max-device-width: 736px) {
   #goto_mobile_button {
-    display: none;
+    position: absolute;
+    display: block;
+    bottom: 100px;
+    right: 0px;
+    z-index: 100;
+    background-color: white;
+    cursor: pointer;
+    border: #403F3F 2px solid;
+    border-right: none;
+    font-size: 2em;
+    text-align: center;
+    padding: 10px;
+  }
+  #goto_mobile_button span {
+    padding: 5px;
   }
 }

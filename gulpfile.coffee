@@ -48,3 +48,31 @@ gulp.task 'connect', ->
 gulp.task 'default', ['coffee', 'connect', 'less']
 
 
+
+try
+  aws_config = JSON.parse(fs.readFileSync('./aws.json'));
+catch err
+  plugins.util.log plugins.util.colors.bgRed 'No AWS config found!'
+
+publisher = plugins.awspublish.create(aws_config)
+
+# Delete every damn thing in a bucket. Use with care.
+gulp.task "delete", ->
+  gulp.src('./noexist/*')
+  .pipe(publisher.sync())
+  .pipe(plugins.awspublish.reporter())
+
+# ## Publishing to S3
+gulp.task 'publish', ['generate', 'less_prod', 'coffee_prod', 'things'], ->
+  gulp.src('public/**/**')
+  .pipe(publisher.publish())
+  .pipe(plugins.awspublish.reporter())
+
+# Set up a bucket
+gulp.task 'setup_bucket', ->
+  aws_site.config aws_config
+  aws_site.createBucket ->
+    aws_site.putBucketPolicy ->
+      aws_site.configureWebsite(aws_config.bucket)
+
+
