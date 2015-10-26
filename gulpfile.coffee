@@ -39,6 +39,7 @@ gulp.task 'connect', ->
 gulp.task 'default', ['coffee', 'connect', 'less']
 
 
+aws_site = require './aws-site.coffee' 
 
 try
   aws_config = JSON.parse(fs.readFileSync("./aws.json"));
@@ -46,6 +47,9 @@ catch err
   plugins.util.log plugins.util.colors.bgRed 'No AWS config found!'
 
 publisher = plugins.awspublish.create(aws_config)
+# headers = {'Cache-Control': 'max-age=315360000, no-transform, public'}; # 10 years
+headers = {'Cache-Control': 'max-age=3600, no-transform, public'}; #  1 hour
+
 
 # Delete every damn thing in a bucket. Use with care.
 gulp.task "delete", ->
@@ -53,10 +57,13 @@ gulp.task "delete", ->
   .pipe(publisher.sync())
   .pipe(plugins.awspublish.reporter())
 
+
 # ## Publishing to S3
 gulp.task 'publish', ->
-  gulp.src('public/**/**')
+  gulp.src('dist/**/**')
+  .pipe(plugins.awspublish.gzip())
   .pipe(publisher.publish())
+  # .pipe(publisher.cache())
   .pipe(plugins.awspublish.reporter())
 
 # Set up a bucket
@@ -65,5 +72,15 @@ gulp.task 'setup_bucket', ->
   aws_site.createBucket ->
     aws_site.putBucketPolicy ->
       aws_site.configureWebsite(aws_config.bucket)
+
+# gulp.task 'cloudfront', ->
+#   revAll = new plugins.revAll()
+#   gulp.src('dist/**')
+#       .pipe(revAll.revision())
+#       .pipe(plugins.awspublish.gzip())
+#       .pipe(publisher.publish(headers))
+#       .pipe(publisher.cache())
+#       .pipe(plugins.awspublish.reporter())
+#       .pipe(plugins.cloudfront(aws_config))
 
 

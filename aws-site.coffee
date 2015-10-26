@@ -146,6 +146,8 @@ exports.configureWebsite = (bucket)->
       s3_client.putBucketWebsite
         Bucket: bucket
         WebsiteConfiguration: webOptions
+        # TODO could use this here for www. redirect I think
+        # WebsiteRedirectLocation: ""
       , (e,d)->
           console.log e if e
           # console.log  s3_client
