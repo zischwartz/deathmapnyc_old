@@ -1,9 +1,5 @@
-# Load some modules
-# path = require 'path'
-# sys = require 'sys'
-# fs = require 'fs'
-# es = require 'event-stream'
 gulp = require 'gulp'
+fs = require 'fs'
 
 
 onError = (err) ->
@@ -11,11 +7,6 @@ onError = (err) ->
   console.log(err.stack)
   this.emit('end')
 
-# `nunjucks` is Mozilla's powerful templating library, see its [templating docs](http://mozilla.github.io/nunjucks/templating.html)
-# nunjucks = require 'nunjucks'
-
-# `minimist` parses command line arguments, like so:
-# argv = require('minimist')(process.argv.slice(2))
 
 # `gulp-load-plugins` loads all the modules in your `package.json` that begin with `gulp-` converting  dashes to camelcase, e.g. `'gulp-front-matter'` becomes `plugins.frontMatter`
 gulpLoadPlugins = require 'gulp-load-plugins'
@@ -50,7 +41,7 @@ gulp.task 'default', ['coffee', 'connect', 'less']
 
 
 try
-  aws_config = JSON.parse(fs.readFileSync('./aws.json'));
+  aws_config = JSON.parse(fs.readFileSync("./aws.json"));
 catch err
   plugins.util.log plugins.util.colors.bgRed 'No AWS config found!'
 
@@ -63,7 +54,7 @@ gulp.task "delete", ->
   .pipe(plugins.awspublish.reporter())
 
 # ## Publishing to S3
-gulp.task 'publish', ['generate', 'less_prod', 'coffee_prod', 'things'], ->
+gulp.task 'publish', ->
   gulp.src('public/**/**')
   .pipe(publisher.publish())
   .pipe(plugins.awspublish.reporter())
