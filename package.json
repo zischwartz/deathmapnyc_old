@@ -3,10 +3,6 @@
   "version": "0.0.1",
   "description": "",
   "main": "dist/script.js",
-  "scripts": {
-    "test": "./node_modules/jasmine-node/bin/jasmine-node --coffee --autoTest  spec/ --watchFolders src/ --noStackTrace --verbose --captureExceptions",
-    "stest": "./node_modules/jasmine-node/bin/jasmine-node --coffee --autoTest  spec/ --watchFolders src/ --verbose --captureExceptions"
-  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
