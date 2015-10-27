@@ -1,84 +1,3 @@
-(function () {
-
-    function defineSnogylop(L) {
-
-        var worldLatlngs = [
-            L.latLng([90, 180]),
-            L.latLng([90, -180]),
-            L.latLng([-90, -180]),
-            L.latLng([-90, 180])
-        ];
-
-        L.extend(L.Polygon.prototype, {
-
-            initialize: function (latlngs, options) {
-                worldLatlngs = (options.worldLatLngs ? options.worldLatLngs : worldLatlngs);
-
-                if (options && options.invert && !options.invertMultiPolygon) {
-                    // Create a new set of latlngs, adding our world-sized ring
-                    // first
-                    var newLatlngs = [];
-                    newLatlngs.push(worldLatlngs);
-                    newLatlngs.push(latlngs[0]);
-                    latlngs = newLatlngs;
-                }
-
-                L.Polyline.prototype.initialize.call(this, latlngs, options);
-                this._initWithHoles(latlngs);
-            },
-
-            getBounds: function () {
-                if (this.options.invert) {
-                    // Don't return the world-sized ring's bounds, that's not
-                    // helpful!
-                    return new L.LatLngBounds(this._holes);
-                }
-                return new L.LatLngBounds(this.getLatLngs());
-            },
-
-        });
-
-        L.extend(L.MultiPolygon.prototype, {
-
-            initialize: function (latlngs, options) {
-                worldLatlngs = (options.worldLatLngs ? options.worldLatLngs : worldLatlngs);
-                this._layers = {};
-                this._options = options;
-
-                if (options.invert) {
-                    // Let Polygon know we're part of a MultiPolygon
-                    options.invertMultiPolygon = true;
-
-                    // Create a new set of latlngs, adding our world-sized ring
-                    // first
-                    var newLatlngs = [];
-                    newLatlngs.push(worldLatlngs);
-                    for (var l in latlngs) {
-                        newLatlngs.push(latlngs[l][0]);
-                    }
-                    latlngs = [newLatlngs];
-                }
-
-                this.setLatLngs(latlngs);
-            },
-
-        });
-
-    }
-
-    if (typeof define === 'function' && define.amd) {
-        // Try to add snogylop to Leaflet using AMD
-        define(['leaflet'], function (L) {
-            defineSnogylop(L);
-        });
-    }
-    else {
-        // Else use the global L
-        defineSnogylop(L);
-    }
-
-})();
-
 var App, BetterIconFactory, better_icons,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -192,7 +111,7 @@ App = (function() {
   }
 
   App.prototype.setup_map = function() {
-    var toner_layer;
+    var bingGeocoder, hash, toner_layer;
     toner_layer = new L.StamenTileLayer("toner-lite", {
       attribution: "Map tiles by <a href=\"http://stamen.com\">Stamen Design</a>, under <a href=\"http://creativecommons.org/licenses/by/3.0\">CC BY 3.0</a>. Data by <a href=\"http://openstreetmap.org\">OpenStreetMap</a>, under <a href=\"http://www.openstreetmap.org/copyright\">ODbL</a>."
     });
@@ -210,7 +129,7 @@ App = (function() {
         return $("#overlay").show();
       };
     })(this));
-    return this.map.on('zoomend', (function(_this) {
+    this.map.on('zoomend', (function(_this) {
       return function() {
         var current_zoom, mark, size, _i, _len, _ref;
         current_zoom = _this.map.getZoom();
@@ -227,6 +146,11 @@ App = (function() {
         return $("#overlay").hide();
       };
     })(this));
+    bingGeocoder = new L.Control.BingGeocoder("Aha580ykg9iksjSa0IlZlMV40YvQvVce26awizJYO2bLD3vWkkuUu-O199Fzm9Yi", {
+      position: "bottomleft"
+    });
+    this.map.addControl(bingGeocoder);
+    return hash = new L.Hash(this.map);
   };
 
   App.prototype.load_data = function() {
@@ -377,3 +301,344 @@ $(function() {
   app.setup_nav();
   return $("#overlay").hide();
 });
+
+L.Control.BingGeocoder = L.Control.extend({
+	options: {
+		collapsed: true,
+		position: 'topright',
+		text: 'Locate',
+		callback: function (results) {
+			var bbox = results.resourceSets[0].resources[0].bbox,
+				first = new L.LatLng(bbox[0], bbox[1]),
+				second = new L.LatLng(bbox[2], bbox[3]),
+				bounds = new L.LatLngBounds([first, second]);
+			this._map.fitBounds(bounds);
+		}
+	},
+
+	_callbackId: 0,
+
+	initialize: function (key, options) {
+		this.key = key;
+		L.Util.setOptions(this, options);
+	},
+
+	onAdd: function (map) {
+		this._map = map;
+		var className = 'leaflet-control-geocoder',
+			container = this._container = L.DomUtil.create('div', className);
+
+		L.DomEvent.disableClickPropagation(container);
+
+		var form = this._form = L.DomUtil.create('form', className + '-form');
+
+		var input = this._input = L.DomUtil.create('input', className + '-input', form);
+		input.type = 'text';
+
+		var submit = this._createButton(className, this.options.text);
+		form.appendChild(submit);
+
+		L.DomEvent.on(form, 'submit', this._geocode, this);
+
+		if (this.options.collapsed) {
+			L.DomEvent.on(container, 'mouseover', this._expand, this);
+			L.DomEvent.on(container, 'mouseout', this._collapse, this);
+
+			var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
+			link.href = '#';
+			link.title = 'Bing Geocoder';
+
+			L.DomEvent.on(link, L.Browser.touch ? 'click' : 'focus', this._expand, this);
+
+			this._map.on('movestart', this._collapse, this);
+		} else {
+			this._expand();
+		}
+
+		container.appendChild(form);
+
+		return container;
+	},
+
+	_createButton: function(css, text) {
+		var btn = '<button type="submit" class="' + css + '-button" />' + text + '</button>';
+
+		var radioFragment = document.createElement('div');
+		radioFragment.innerHTML = btn;
+
+		return radioFragment.firstChild;
+	},
+
+	_geocode : function (event) {
+		L.DomEvent.preventDefault(event);
+		this._callbackId = '_l_binggeocoder_' + (this._callbackId++);
+		window[this._callbackId] = L.Util.bind(this.options.callback, this);
+
+		var params = {
+			query: this._input.value,
+			key : this.key,
+			jsonp : this._callbackId
+		},
+		url = 'http://dev.virtualearth.net/REST/v1/Locations' + L.Util.getParamString(params),
+		script = L.DomUtil.create('script', '', document.getElementsByTagName('head')[0]);
+
+		script.type = 'text/javascript';
+		script.src = url;
+		script.id = this._callbackId;
+	},
+
+	_expand: function () {
+		L.DomUtil.addClass(this._container, 'leaflet-control-geocoder-expanded');
+	},
+
+	_collapse: function () {
+		L.DomUtil.removeClass(this._container, 'leaflet-control-geocoder-expanded');
+	}
+});
+
+L.control.bingGeocoder = function (key, options) {
+		return new L.Control.BingGeocoder(key, options);
+};
+(function(window) {
+	var HAS_HASHCHANGE = (function() {
+		var doc_mode = window.documentMode;
+		return ('onhashchange' in window) &&
+			(doc_mode === undefined || doc_mode > 7);
+	})();
+
+	L.Hash = function(map) {
+		this.onHashChange = L.Util.bind(this.onHashChange, this);
+
+		if (map) {
+			this.init(map);
+		}
+	};
+
+	L.Hash.parseHash = function(hash) {
+		if(hash.indexOf('#') === 0) {
+			hash = hash.substr(1);
+		}
+		var args = hash.split("/");
+		if (args.length == 3) {
+			var zoom = parseInt(args[0], 10),
+			lat = parseFloat(args[1]),
+			lon = parseFloat(args[2]);
+			if (isNaN(zoom) || isNaN(lat) || isNaN(lon)) {
+				return false;
+			} else {
+				return {
+					center: new L.LatLng(lat, lon),
+					zoom: zoom
+				};
+			}
+		} else {
+			return false;
+		}
+	};
+
+	L.Hash.formatHash = function(map) {
+		var center = map.getCenter(),
+		    zoom = map.getZoom(),
+		    precision = Math.max(0, Math.ceil(Math.log(zoom) / Math.LN2));
+
+		return "#" + [zoom,
+			center.lat.toFixed(precision),
+			center.lng.toFixed(precision)
+		].join("/");
+	},
+
+	L.Hash.prototype = {
+		map: null,
+		lastHash: null,
+
+		parseHash: L.Hash.parseHash,
+		formatHash: L.Hash.formatHash,
+
+		init: function(map) {
+			this.map = map;
+
+			// reset the hash
+			this.lastHash = null;
+			this.onHashChange();
+
+			if (!this.isListening) {
+				this.startListening();
+			}
+		},
+
+		removeFrom: function(map) {
+			if (this.changeTimeout) {
+				clearTimeout(this.changeTimeout);
+			}
+
+			if (this.isListening) {
+				this.stopListening();
+			}
+
+			this.map = null;
+		},
+
+		onMapMove: function() {
+			// bail if we're moving the map (updating from a hash),
+			// or if the map is not yet loaded
+
+			if (this.movingMap || !this.map._loaded) {
+				return false;
+			}
+
+			var hash = this.formatHash(this.map);
+			if (this.lastHash != hash) {
+				location.replace(hash);
+				this.lastHash = hash;
+			}
+		},
+
+		movingMap: false,
+		update: function() {
+			var hash = location.hash;
+			if (hash === this.lastHash) {
+				return;
+			}
+			var parsed = this.parseHash(hash);
+			if (parsed) {
+				this.movingMap = true;
+
+				this.map.setView(parsed.center, parsed.zoom);
+
+				this.movingMap = false;
+			} else {
+				this.onMapMove(this.map);
+			}
+		},
+
+		// defer hash change updates every 100ms
+		changeDefer: 100,
+		changeTimeout: null,
+		onHashChange: function() {
+			// throttle calls to update() so that they only happen every
+			// `changeDefer` ms
+			if (!this.changeTimeout) {
+				var that = this;
+				this.changeTimeout = setTimeout(function() {
+					that.update();
+					that.changeTimeout = null;
+				}, this.changeDefer);
+			}
+		},
+
+		isListening: false,
+		hashChangeInterval: null,
+		startListening: function() {
+			this.map.on("moveend", this.onMapMove, this);
+
+			if (HAS_HASHCHANGE) {
+				L.DomEvent.addListener(window, "hashchange", this.onHashChange);
+			} else {
+				clearInterval(this.hashChangeInterval);
+				this.hashChangeInterval = setInterval(this.onHashChange, 50);
+			}
+			this.isListening = true;
+		},
+
+		stopListening: function() {
+			this.map.off("moveend", this.onMapMove, this);
+
+			if (HAS_HASHCHANGE) {
+				L.DomEvent.removeListener(window, "hashchange", this.onHashChange);
+			} else {
+				clearInterval(this.hashChangeInterval);
+			}
+			this.isListening = false;
+		}
+	};
+	L.hash = function(map) {
+		return new L.Hash(map);
+	};
+	L.Map.prototype.addHash = function() {
+		this._hash = L.hash(this);
+	};
+	L.Map.prototype.removeHash = function() {
+		this._hash.removeFrom();
+	};
+})(window);
+
+(function () {
+
+    function defineSnogylop(L) {
+
+        var worldLatlngs = [
+            L.latLng([90, 180]),
+            L.latLng([90, -180]),
+            L.latLng([-90, -180]),
+            L.latLng([-90, 180])
+        ];
+
+        L.extend(L.Polygon.prototype, {
+
+            initialize: function (latlngs, options) {
+                worldLatlngs = (options.worldLatLngs ? options.worldLatLngs : worldLatlngs);
+
+                if (options && options.invert && !options.invertMultiPolygon) {
+                    // Create a new set of latlngs, adding our world-sized ring
+                    // first
+                    var newLatlngs = [];
+                    newLatlngs.push(worldLatlngs);
+                    newLatlngs.push(latlngs[0]);
+                    latlngs = newLatlngs;
+                }
+
+                L.Polyline.prototype.initialize.call(this, latlngs, options);
+                this._initWithHoles(latlngs);
+            },
+
+            getBounds: function () {
+                if (this.options.invert) {
+                    // Don't return the world-sized ring's bounds, that's not
+                    // helpful!
+                    return new L.LatLngBounds(this._holes);
+                }
+                return new L.LatLngBounds(this.getLatLngs());
+            },
+
+        });
+
+        L.extend(L.MultiPolygon.prototype, {
+
+            initialize: function (latlngs, options) {
+                worldLatlngs = (options.worldLatLngs ? options.worldLatLngs : worldLatlngs);
+                this._layers = {};
+                this._options = options;
+
+                if (options.invert) {
+                    // Let Polygon know we're part of a MultiPolygon
+                    options.invertMultiPolygon = true;
+
+                    // Create a new set of latlngs, adding our world-sized ring
+                    // first
+                    var newLatlngs = [];
+                    newLatlngs.push(worldLatlngs);
+                    for (var l in latlngs) {
+                        newLatlngs.push(latlngs[l][0]);
+                    }
+                    latlngs = [newLatlngs];
+                }
+
+                this.setLatLngs(latlngs);
+            },
+
+        });
+
+    }
+
+    if (typeof define === 'function' && define.amd) {
+        // Try to add snogylop to Leaflet using AMD
+        define(['leaflet'], function (L) {
+            defineSnogylop(L);
+        });
+    }
+    else {
+        // Else use the global L
+        defineSnogylop(L);
+    }
+
+})();

@@ -33,6 +33,7 @@ gulp.task "coffee", ->
 gulp.task 'connect', ->
   plugins.connect.server
     root: './dist'
+    port: 8882
     livereload:
       port: 35735
 

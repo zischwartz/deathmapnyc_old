@@ -102,6 +102,11 @@ class App
             mark.setIcon @options.factory.make "skull", size, @options.jitter
       $("#overlay").hide()
 
+    bingGeocoder = new L.Control.BingGeocoder "Aha580ykg9iksjSa0IlZlMV40YvQvVce26awizJYO2bLD3vWkkuUu-O199Fzm9Yi",
+      position: "bottomleft"
+    @map.addControl(bingGeocoder)
+    hash = new L.Hash(@map)
+
   load_data: =>
     # so lazy, just do this
     map = @map
