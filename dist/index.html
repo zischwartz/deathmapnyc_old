@@ -5,7 +5,24 @@
 	 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
 	 <link href='https://fonts.googleapis.com/css?family=Slabo+27px' rel='stylesheet' type='text/css'>
 	 <link href='style.css' rel='stylesheet' type='text/css'>
-<link rel="shortcut icon" href="http://deathmapnyc.com/favicon.ico" />
+   <link rel="shortcut icon" href="http://deathmapnyc.com/favicon.ico" />
+   <meta name="description" content="A map of death in nyc in the past few years" />
+
+   <!-- Twitter Card data -->
+   <meta name="twitter:card" content="summary">
+   <meta name="twitter:title" content="Death Map NYC">
+   <meta name="twitter:description" content="A map of death in nyc in the past few years">
+   <meta name="twitter:creator" content="@zischwartz">
+   <meta name="twitter:image" content="http://deathmapnyc.com/img/image.jpg">
+
+   <!-- Open Graph data -->
+   <meta property="og:title" content="Death Map NYC" />
+   <meta property="og:type" content="website" />
+   <meta property="og:url" content="http://deathmapnyc.com/" />
+   <meta property="og:image" content="http://deathmapnyc.com/img/image.jpg" />
+   <meta property="og:description" content="A map of death in nyc in the past few years" /> 
+   <meta property="og:site_name" content="Death Map NYC" />
+
 </head>
 <body>
 <nav>
@@ -18,7 +35,9 @@
   	<p>This is an incomplete map of deaths that occurred in New York City over roughly the past two years. It only includes <a href="https://thomaslevine.com/!/nyc-crime-map/">homicides</a> and <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95">motor vehicle related</a> deaths because that seems to be the data available.</p>
   	<p>Because so many deaths occur at the same locations, a few pixels of noise is applied to the locations so they can be seen.</p>
   	<p><a href="http://leafletjs.com/">Leaflet</a>, the mapping library used here, is not designed to display this many markers, which is why it's so slow. Sorry if it crashes your browser tab.</p>
-  	<p><a href="http://zachschwartz.com/deathmapnyc">Read more here.</a></p>
+    <p> You can move to a specific address by clicking the button on the lower left corner</p>
+    <p><a href="http://zachschwartz.com/work/deathmap">Read more here</a> or check out the<a href="https://github.com/zischwartz/deathmapnyc">github repo</a></p>
+  	<p style="text-align: right;"><small>created by<a href="http://zachschwartz.com/deathmap">zach schwartz</a></small></p>
   </div>
 </nav>
 <div id="overlay">

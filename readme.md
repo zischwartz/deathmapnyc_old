@@ -1,57 +1,15 @@
-just death?
-https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95
+To get started with the web app, run
 
-persons killed and persons injured:
-curl https://data.cityofnewyork.us/api/views/h9gi-nx95/rows.json?accessType=DOWNLOAD > rows.json
+```
+npm install
+gulp
+```
 
+And you should see the contents of `dist` dir at [http://localhost:8882](http://localhost:8882).
 
-lets use ipython but not deal with deps
-boot2docker
-docker run -it ipython/scipystack /bin/bash
+To work with the underlying data, the easiest thing to do is to `cd data_processing` and run a docker container with ipython/jupyter loaded on it, like so:
 
+```
 docker run -it -v $PWD:/root ipython/scipystack /bin/bash
+```
 
-
-just deaths
-https://data.cityofnewyork.us/Public-Safety/motor_related_deaths/9tve-dvm5
-
-
-
-
-
-
-# CRIME RELATED
-
- sudo pip install nyc-crime-map
-
-and then run it like so. ::
-
-    nyc-crime-map
-
-
-from within the notebook, this way we can get current data
-
-
-Or just grab all his data
-
-wget -r --no-parent -A '*71.csv' http://dada.pink/nyc-crime-map-data/
-
-
-# within ipython
-files = !find dada.pink/nyc-crime-map-data/ -iname "*.csv"
-
-http://stackoverflow.com/questions/21149920/pandas-import-multiple-csv-files-into-dataframe-using-a-loop-and-hierarchical-i
-
-d = pandas.concat([pandas.read_csv(f) for f in files])
-
-
-
-# shape of ny
-invert
-https://github.com/ebrelsford/Leaflet.snogylop
-but wait
-http://www.mapshaper.org/
-
-
-
-docker run -it -v $PWD:/root ipython/scipystack /bin/bash

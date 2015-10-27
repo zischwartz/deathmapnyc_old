@@ -64,7 +64,7 @@ gulp.task 'publish', ->
   gulp.src('dist/**/**')
   .pipe(plugins.awspublish.gzip())
   .pipe(publisher.publish())
-  # .pipe(publisher.cache())
+  .pipe(publisher.cache())
   .pipe(plugins.awspublish.reporter())
 
 # Set up a bucket
