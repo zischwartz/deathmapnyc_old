@@ -124,6 +124,11 @@ App = (function() {
     });
     this.zoom_to_marker_size = d3.scale.quantize().domain([17, 10]).range(this.options.factory.types.sizes);
     toner_layer.setOpacity(0.5);
+    this.map.on('dblclick', (function(_this) {
+      return function() {
+        return $("#overlay").show();
+      };
+    })(this));
     this.map.on('zoomstart', (function(_this) {
       return function() {
         return $("#overlay").show();
@@ -270,8 +275,10 @@ App = (function() {
     $("nav div.about").hide();
     return $((function(_this) {
       return function() {
-        $("nav a.about").on("click", function() {
-          return $("nav div.about").slideToggle();
+        $("nav a.about").on("click", function(e) {
+          $("nav div.about").toggle();
+          e.preventDefault();
+          return false;
         });
         return $("nav a.goto, #goto_mobile_button").on("click", function() {
           _this.get_location();
@@ -299,7 +306,8 @@ $(function() {
   app.setup_map();
   app.load_data();
   app.setup_nav();
-  return $("#overlay").hide();
+  $("#overlay").hide();
+  return window.app = app;
 });
 
 L.Control.BingGeocoder = L.Control.extend({

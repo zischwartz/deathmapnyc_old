@@ -86,6 +86,9 @@ class App
 
     toner_layer.setOpacity(0.5)
 
+    @map.on 'dblclick', =>
+      $("#overlay").show()
+
     @map.on 'zoomstart', =>
       $("#overlay").show()
       # console.log "zoom start!"
@@ -210,7 +213,10 @@ class App
   setup_nav: =>
     $("nav div.about").hide()
     $ =>
-      $("nav a.about").on "click", -> $("nav div.about").slideToggle()
+      $("nav a.about").on "click", (e)-> 
+        $("nav div.about").toggle()
+        e.preventDefault()
+        return false
       $("nav a.goto, #goto_mobile_button").on "click", => 
         @get_location()
         $("#goto_mobile_button").hide()
@@ -232,3 +238,4 @@ $ ->
   app.load_data()
   app.setup_nav()
   $("#overlay").hide()
+  window.app = app
