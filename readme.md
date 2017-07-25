@@ -1,5 +1,8 @@
 **You probably want the [new version of deathmapnyc](https://github.com/zischwartz/deathmapnyc), this is the first version.**
 
+
+--- 
+
 To get started with the web app, run
 
 ```
